@@ -9,7 +9,8 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.plugin.Plugin;
 
 public enum CustomEnchantment {
-    CHAIN_BREAK("chainbreak", "Chainbreak", 2, Enchantment.LUNGE, Material.NETHERITE_PICKAXE, Material.NETHERITE_AXE);
+    CHAIN_BREAK("chainbreak", "Chainbreak", Enchantment.LUNGE, Material.NETHERITE_PICKAXE, Material.NETHERITE_AXE,
+            Material.NETHERITE_HOE);
 
     private final String key;
     private final String displayName;
@@ -17,11 +18,12 @@ public enum CustomEnchantment {
     private final Enchantment dummyEnchantment;
     private final Collection<Material> allowedTools;
 
-    CustomEnchantment(String key, String displayName, int maxLevel, Enchantment dummyEnchantment, Collection<Material> allowedTools) {
+    CustomEnchantment(String key, String displayName, int maxLevel, Enchantment dummyEnchantment,
+            Collection<Material> allowedTools) {
         this.key = key;
         this.displayName = displayName;
         this.maxLevel = maxLevel;
-		this.dummyEnchantment = dummyEnchantment;
+        this.dummyEnchantment = dummyEnchantment;
         this.allowedTools = allowedTools;
     }
 
@@ -29,7 +31,8 @@ public enum CustomEnchantment {
         this(key, displayName, 1, dummyEnchantment, allowedTools);
     }
 
-    CustomEnchantment(String key, String displayName, int maxLevel, Enchantment dummyEnchantment, Material... allowedTools) {
+    CustomEnchantment(String key, String displayName, int maxLevel, Enchantment dummyEnchantment,
+            Material... allowedTools) {
         this(key, displayName, maxLevel, dummyEnchantment, Set.of(allowedTools));
     }
 
@@ -42,8 +45,8 @@ public enum CustomEnchantment {
     }
 
     public String displayName() {
-		return displayName;
-	}
+        return displayName;
+    }
 
     public int maxLevel() {
         return maxLevel;
