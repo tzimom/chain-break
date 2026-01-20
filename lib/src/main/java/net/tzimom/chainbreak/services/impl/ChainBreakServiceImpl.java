@@ -15,7 +15,7 @@ import net.tzimom.chainbreak.services.ChainBreakService;
 
 public class ChainBreakServiceImpl implements ChainBreakService {
     private static final int MAX_RANGE = 8;
-    private static final int STEP_INTERVAL = 6;
+    private static final int STEP_INTERVAL = 4;
 
     private final Plugin plugin;
 

@@ -5,10 +5,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 import net.tzimom.chainbreak.events.BlockBreakEventHandler;
 import net.tzimom.chainbreak.events.PrepareAnvilEventHandler;
 import net.tzimom.chainbreak.events.PrepareGrindstoneEventHandler;
-import net.tzimom.chainbreak.services.BookService;
+import net.tzimom.chainbreak.services.RecipeService;
 import net.tzimom.chainbreak.services.ChainBreakService;
 import net.tzimom.chainbreak.services.CustomEnchantmentService;
-import net.tzimom.chainbreak.services.impl.BookServiceImpl;
+import net.tzimom.chainbreak.services.impl.RecipeServiceImpl;
 import net.tzimom.chainbreak.services.impl.ChainBreakServiceImpl;
 import net.tzimom.chainbreak.services.impl.CustomEnchantmentServiceImpl;
 
@@ -16,11 +16,12 @@ public class ChainBreakPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         var customEnchantmentService = new CustomEnchantmentServiceImpl(this);
-        var bookService = new BookServiceImpl(this, customEnchantmentService);
         var chainBreakService = new ChainBreakServiceImpl(this);
 
+        var recipeService = new RecipeServiceImpl(this, customEnchantmentService);
+
         registerEventHandlers(customEnchantmentService, chainBreakService);
-        registerRecipes(bookService);
+        registerRecipes(recipeService);
     }
 
     private void registerEventHandlers(CustomEnchantmentService customEnchantmentService,
@@ -32,9 +33,9 @@ public class ChainBreakPlugin extends JavaPlugin {
         pluginManager.registerEvents(new BlockBreakEventHandler(customEnchantmentService, chainBreakService), this);
     }
 
-    private void registerRecipes(BookService bookService) {
-        var server = getServer();
+    private void registerRecipes(RecipeService recipeService) {
+        var recipes = recipeService.createRecipes();
 
-        server.addRecipe(bookService.createRecipe());
+        recipes.forEach(recipe -> getServer().addRecipe(recipe));
     }
 }
