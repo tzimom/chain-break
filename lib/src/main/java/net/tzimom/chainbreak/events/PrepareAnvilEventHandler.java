@@ -4,6 +4,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 
+import net.kyori.adventure.text.Component;
 import net.tzimom.chainbreak.models.CustomEnchantment;
 import net.tzimom.chainbreak.services.CustomEnchantmentService;
 
@@ -32,6 +33,14 @@ public class PrepareAnvilEventHandler implements Listener {
 
         if (!customEnchantmentService.tryEnchant(result, CustomEnchantment.CHAIN_BREAK, level))
             return;
+
+        var renameText = view.getRenameText();
+
+        if (renameText != null && !renameText.isEmpty()) {
+            var itemMeta = result.getItemMeta();
+            itemMeta.displayName(Component.text(view.getRenameText()));
+            result.setItemMeta(itemMeta);
+        }
 
         view.setRepairCost(0);
         event.setResult(result);
