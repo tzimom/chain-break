@@ -31,8 +31,10 @@ public class PrepareAnvilEventHandler implements Listener {
         var level = customEnchantmentService.getEnchantmentLevel(secondItem, CustomEnchantment.CHAIN_BREAK);
         var result = firstItem.clone();
 
-        if (!customEnchantmentService.tryEnchant(result, CustomEnchantment.CHAIN_BREAK, level))
+        if (!customEnchantmentService.tryEnchant(result, CustomEnchantment.CHAIN_BREAK, level)) {
+            event.setResult(null);
             return;
+        }
 
         var renameText = view.getRenameText();
 
