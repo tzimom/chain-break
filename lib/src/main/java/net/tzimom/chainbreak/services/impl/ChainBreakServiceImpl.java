@@ -26,10 +26,10 @@ public class ChainBreakServiceImpl implements ChainBreakService {
     private boolean canStartChain(Material blockType, Material toolType) {
         return switch (toolType) {
             case NETHERITE_PICKAXE -> switch (blockType) {
-                case COAL_ORE, IRON_ORE, GOLD_ORE, REDSTONE_ORE, LAPIS_ORE, DIAMOND_ORE, EMERALD_ORE,
+                case COAL_ORE, IRON_ORE, GOLD_ORE, REDSTONE_ORE, LAPIS_ORE, DIAMOND_ORE, EMERALD_ORE, COPPER_ORE,
                         DEEPSLATE_COAL_ORE, DEEPSLATE_IRON_ORE, DEEPSLATE_GOLD_ORE, DEEPSLATE_REDSTONE_ORE,
-                        DEEPSLATE_LAPIS_ORE, DEEPSLATE_EMERALD_ORE, NETHER_QUARTZ_ORE, NETHER_GOLD_ORE,
-                        ANCIENT_DEBRIS ->
+                        DEEPSLATE_LAPIS_ORE, DEEPSLATE_EMERALD_ORE, DEEPSLATE_COPPER_ORE, NETHER_QUARTZ_ORE,
+                        NETHER_GOLD_ORE, ANCIENT_DEBRIS ->
                     true;
                 default -> false;
             };
