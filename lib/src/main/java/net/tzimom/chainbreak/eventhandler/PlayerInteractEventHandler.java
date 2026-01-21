@@ -6,15 +6,20 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import net.kyori.adventure.text.Component;
+import net.tzimom.chainbreak.config.service.ChainBreakConfigService;
 import net.tzimom.chainbreak.service.ChainBreakEnchantmentService;
 import net.tzimom.chainbreak.service.ChainBreakToolService;
 
 public class PlayerInteractEventHandler implements Listener {
+    private final ChainBreakConfigService chainBreakConfigService;
     private final ChainBreakToolService chainBreakToolService;
     private final ChainBreakEnchantmentService chainBreakEnchantmentService;
 
-    public PlayerInteractEventHandler(ChainBreakToolService chainBreakToolService,
+    public PlayerInteractEventHandler(
+            ChainBreakConfigService chainBreakConfigService,
+            ChainBreakToolService chainBreakToolService,
             ChainBreakEnchantmentService chainBreakEnchantmentService) {
+        this.chainBreakConfigService = chainBreakConfigService;
         this.chainBreakToolService = chainBreakToolService;
         this.chainBreakEnchantmentService = chainBreakEnchantmentService;
     }
@@ -29,7 +34,7 @@ public class PlayerInteractEventHandler implements Listener {
         if (tool == null || tool.getType().isAir())
             return;
 
-        if (!chainBreakEnchantmentService.hasEnchantment(tool))
+        if (!chainBreakEnchantmentService.hasEnchantment(tool) || !chainBreakToolService.isTool(tool.getType()))
             return;
 
         event.setCancelled(true);
@@ -37,6 +42,10 @@ public class PlayerInteractEventHandler implements Listener {
         var enabled = chainBreakToolService.toggleChainBreak(tool);
         var player = event.getPlayer();
 
-        player.sendActionBar(Component.text(enabled ? "Chain Break enabled" : "Chain Break disabled"));
+        var enchantmentName = chainBreakConfigService.config().enchantment().name();
+
+        player.sendActionBar(Component.text(enchantmentName)
+                .append(Component.space())
+                .append(Component.text(enabled ? "enabled" : "disabled")));
     }
 }

@@ -34,15 +34,16 @@ public class ChainBreakServiceImpl implements ChainBreakService {
                 block.getRelative(BlockFace.WEST));
     }
 
-    private void scheduleNextLayer(Material target, ItemStack tool, LivingEntity user, int remainingRange,
+    private void scheduleNextLayer(Block root, Material target, ItemStack tool, LivingEntity user,
             Collection<Block> visitedBlocks, Collection<Block> previousLayer) {
-        if (remainingRange <= 0)
-            return;
+        var maxRange = chainBreakConfigService.config().maxRange();
+        var maxRangeSquared = maxRange * maxRange;
 
         var currentLayer = previousLayer.stream()
                 .flatMap(block -> getNeighbors(block).stream())
                 .filter(block -> !visitedBlocks.contains(block))
                 .filter(block -> block.getType() == target)
+                .filter(block -> block.getLocation().subtract(root.getLocation()).lengthSquared() <= maxRangeSquared)
                 .collect(Collectors.toSet());
 
         if (currentLayer.isEmpty())
@@ -56,7 +57,7 @@ public class ChainBreakServiceImpl implements ChainBreakService {
                 tool.damage(1, user);
             });
 
-            scheduleNextLayer(target, tool, user, remainingRange - 1, visitedBlocks, currentLayer);
+            scheduleNextLayer(root, target, tool, user, visitedBlocks, currentLayer);
         }, chainBreakConfigService.config().stepInterval());
     }
 
@@ -67,6 +68,6 @@ public class ChainBreakServiceImpl implements ChainBreakService {
         var visitedBlocks = new ArrayList<Block>();
         visitedBlocks.add(block);
 
-        scheduleNextLayer(blockType, tool, user, chainBreakConfigService.config().maxRange(), visitedBlocks, List.of(block));
+        scheduleNextLayer(block, blockType, tool, user, visitedBlocks, List.of(block));
     }
 }

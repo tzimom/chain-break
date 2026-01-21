@@ -3,6 +3,7 @@ package net.tzimom.chainbreak.eventhandler;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 import net.kyori.adventure.text.Component;
 import net.tzimom.chainbreak.service.ChainBreakEnchantmentService;
@@ -23,6 +24,28 @@ public class PrepareAnvilEventHandler implements Listener {
 
         if (firstItem == null || secondItem == null)
             return;
+
+        if (chainBreakEnchantmentService.hasEnchantment(firstItem)
+                && !chainBreakEnchantmentService.hasEnchantment(secondItem)) {
+            if (secondItem.getEnchantments().isEmpty()) {
+                if (!(secondItem.getItemMeta() instanceof EnchantmentStorageMeta bookMeta))
+                    return;
+
+                if (bookMeta.getStoredEnchants().isEmpty())
+                    return;
+            }
+
+            var result = event.getResult();
+
+            if (result == null)
+                return;
+
+            result = result.clone();
+            chainBreakEnchantmentService.clearDummyEnchantment(result);
+
+            event.setResult(result);
+            return;
+        }
 
         if (!chainBreakEnchantmentService.hasEnchantment(secondItem))
             return;

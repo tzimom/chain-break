@@ -29,7 +29,7 @@ public class ChainBreakPlugin extends JavaPlugin {
     private final PrepareAnvilEventHandler prepareAnvilEventHandler = new PrepareAnvilEventHandler(chainBreakEnchantmentService);
     private final InventoryClickEventHandler inventoryClickEventHandler = new InventoryClickEventHandler(this, chainBreakEnchantmentService);
     private final PrepareGrindstoneEventHandler prepareGrindstoneEventHandler = new PrepareGrindstoneEventHandler(chainBreakEnchantmentService);
-    private final PlayerInteractEventHandler playerInteractEventHandler = new PlayerInteractEventHandler(chainBreakToolService, chainBreakEnchantmentService);
+    private final PlayerInteractEventHandler playerInteractEventHandler = new PlayerInteractEventHandler(chainBreakConfigService, chainBreakToolService, chainBreakEnchantmentService);
     private final BlockBreakEventHandler blockBreakEventHandler = new BlockBreakEventHandler(chainBreakService, chainBreakToolService);
 
     @Override

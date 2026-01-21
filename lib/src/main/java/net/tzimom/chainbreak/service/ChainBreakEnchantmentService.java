@@ -9,4 +9,5 @@ public interface ChainBreakEnchantmentService {
 
     void enchant(ItemStack item);
     void disenchant(ItemStack item);
+    void clearDummyEnchantment(ItemStack result);
 }

@@ -41,6 +41,12 @@ public class ChainBreakToolServiceImpl implements ChainBreakToolService {
     }
 
     @Override
+    public boolean isTool(Material itemType) {
+        return chainBreakConfigService.config().tools().stream()
+                .anyMatch(toolConfig -> toolConfig.items().contains(itemType));
+    }
+
+    @Override
     public boolean canStartChainBreak(Block block, ItemStack tool) {
         return isChainBreakEnabled(tool) && isChainBreakCompatible(block, tool);
     }
