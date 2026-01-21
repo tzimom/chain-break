@@ -37,8 +37,6 @@ public class PlayerInteractEventHandler implements Listener {
         if (!chainBreakEnchantmentService.hasEnchantment(tool) || !chainBreakToolService.isTool(tool.getType()))
             return;
 
-        event.setCancelled(true);
-
         var enabled = chainBreakToolService.toggleChainBreak(tool);
         var player = event.getPlayer();
 
