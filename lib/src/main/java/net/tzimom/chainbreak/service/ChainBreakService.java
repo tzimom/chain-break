@@ -1,4 +1,4 @@
-package net.tzimom.chainbreak.services;
+package net.tzimom.chainbreak.service;
 
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;

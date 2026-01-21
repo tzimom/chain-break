@@ -1,4 +1,4 @@
-package net.tzimom.chainbreak.services;
+package net.tzimom.chainbreak.service;
 
 import java.util.Collection;
 

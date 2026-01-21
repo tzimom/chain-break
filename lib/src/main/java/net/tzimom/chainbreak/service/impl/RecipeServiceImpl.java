@@ -1,4 +1,4 @@
-package net.tzimom.chainbreak.services.impl;
+package net.tzimom.chainbreak.service.impl;
 
 import java.util.Collection;
 import java.util.List;
@@ -10,17 +10,16 @@ import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.Plugin;
 
-import net.tzimom.chainbreak.models.CustomEnchantment;
-import net.tzimom.chainbreak.services.RecipeService;
-import net.tzimom.chainbreak.services.CustomEnchantmentService;
+import net.tzimom.chainbreak.service.RecipeService;
+import net.tzimom.chainbreak.service.ChainBreakEnchantmentService;
 
 public class RecipeServiceImpl implements RecipeService {
-    private final CustomEnchantmentService customEnchantmentService;
+    private final ChainBreakEnchantmentService chainBreakEnchantmentService;
 
     private final NamespacedKey chainBreakBookRecipeKey;
 
-    public RecipeServiceImpl(Plugin plugin, CustomEnchantmentService customEnchantmentService) {
-        this.customEnchantmentService = customEnchantmentService;
+    public RecipeServiceImpl(Plugin plugin, ChainBreakEnchantmentService chainBreakEnchantmentService) {
+        this.chainBreakEnchantmentService = chainBreakEnchantmentService;
 
         chainBreakBookRecipeKey = new NamespacedKey(plugin, "book");
     }
@@ -28,7 +27,7 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     public Collection<Recipe> createRecipes() {
         var chainBreakBook = new ItemStack(Material.ENCHANTED_BOOK);
-        customEnchantmentService.enchant(chainBreakBook, CustomEnchantment.CHAIN_BREAK);
+        chainBreakEnchantmentService.enchant(chainBreakBook);
 
         return List.of(new ShapedRecipe(chainBreakBookRecipeKey, chainBreakBook)
                 .shape("aba", "cdc", "aea")

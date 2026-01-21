@@ -1,18 +1,17 @@
-package net.tzimom.chainbreak.events;
+package net.tzimom.chainbreak.eventhandler;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 
 import net.kyori.adventure.text.Component;
-import net.tzimom.chainbreak.models.CustomEnchantment;
-import net.tzimom.chainbreak.services.CustomEnchantmentService;
+import net.tzimom.chainbreak.service.ChainBreakEnchantmentService;
 
 public class PrepareAnvilEventHandler implements Listener {
-    private final CustomEnchantmentService customEnchantmentService;
+    private final ChainBreakEnchantmentService chainBreakEnchantmentService;
 
-    public PrepareAnvilEventHandler(CustomEnchantmentService customEnchantmentService) {
-        this.customEnchantmentService = customEnchantmentService;
+    public PrepareAnvilEventHandler(ChainBreakEnchantmentService chainBreakEnchantmentService) {
+        this.chainBreakEnchantmentService = chainBreakEnchantmentService;
     }
 
     @EventHandler
@@ -25,22 +24,24 @@ public class PrepareAnvilEventHandler implements Listener {
         if (firstItem == null || secondItem == null)
             return;
 
-        if (!customEnchantmentService.hasEnchantment(secondItem, CustomEnchantment.CHAIN_BREAK))
+        if (!chainBreakEnchantmentService.hasEnchantment(secondItem))
             return;
 
-        var level = customEnchantmentService.getEnchantmentLevel(secondItem, CustomEnchantment.CHAIN_BREAK);
         var result = firstItem.clone();
+        var resultType = result.getType();
 
-        if (!customEnchantmentService.tryEnchant(result, CustomEnchantment.CHAIN_BREAK, level)) {
+        if (!chainBreakEnchantmentService.isEnchantable(resultType)) {
             event.setResult(null);
             return;
         }
+
+        chainBreakEnchantmentService.enchant(result);
 
         var renameText = view.getRenameText();
 
         if (renameText != null && !renameText.isEmpty()) {
             var itemMeta = result.getItemMeta();
-            itemMeta.displayName(Component.text(view.getRenameText()));
+            itemMeta.displayName(Component.text(renameText));
             result.setItemMeta(itemMeta);
         }
 

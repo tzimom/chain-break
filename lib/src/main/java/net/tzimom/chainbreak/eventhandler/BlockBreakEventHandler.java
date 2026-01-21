@@ -1,21 +1,20 @@
-package net.tzimom.chainbreak.events;
+package net.tzimom.chainbreak.eventhandler;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 
-import net.tzimom.chainbreak.models.CustomEnchantment;
-import net.tzimom.chainbreak.services.ChainBreakService;
-import net.tzimom.chainbreak.services.CustomEnchantmentService;
+import net.tzimom.chainbreak.service.ChainBreakService;
+import net.tzimom.chainbreak.service.ChainBreakEnchantmentService;
 
 public class BlockBreakEventHandler implements Listener {
-    private final CustomEnchantmentService customEnchantmentService;
     private final ChainBreakService chainBreakService;
+    private final ChainBreakEnchantmentService chainBreakEnchantmentService;
 
-    public BlockBreakEventHandler(CustomEnchantmentService customEnchantmentService,
-            ChainBreakService chainBreakService) {
-        this.customEnchantmentService = customEnchantmentService;
+    public BlockBreakEventHandler(ChainBreakService chainBreakService,
+            ChainBreakEnchantmentService chainBreakEnchantmentService) {
         this.chainBreakService = chainBreakService;
+        this.chainBreakEnchantmentService = chainBreakEnchantmentService;
     }
 
     @EventHandler
@@ -24,7 +23,7 @@ public class BlockBreakEventHandler implements Listener {
         var inventory = player.getInventory();
         var item = inventory.getItemInMainHand();
 
-        if (!customEnchantmentService.hasEnchantment(item, CustomEnchantment.CHAIN_BREAK))
+        if (!chainBreakEnchantmentService.hasEnchantment(item))
             return;
 
         var block = event.getBlock();

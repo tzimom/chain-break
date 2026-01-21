@@ -1,4 +1,4 @@
-package net.tzimom.chainbreak.services.impl;
+package net.tzimom.chainbreak.service.impl;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -11,7 +11,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
-import net.tzimom.chainbreak.services.ChainBreakService;
+import net.tzimom.chainbreak.service.ChainBreakService;
 
 public class ChainBreakServiceImpl implements ChainBreakService {
     private static final int MAX_RANGE = 8;
