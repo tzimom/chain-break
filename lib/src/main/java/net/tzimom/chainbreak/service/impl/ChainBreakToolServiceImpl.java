@@ -1,6 +1,12 @@
 package net.tzimom.chainbreak.service.impl;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Stream;
+
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
@@ -20,27 +26,35 @@ public class ChainBreakToolServiceImpl implements ChainBreakToolService {
         chainBreakEnabledKey = new NamespacedKey(plugin, "enchantment.chainbreak.enabled");
     }
 
-    @Override
-    public boolean canStartChainBreak(Block block, ItemStack tool) {
-        if (!chainBreakEnchantmentService.hasEnchantment(tool))
-            return false;
-
-        if (!block.isPreferredTool(tool))
-            return false;
-
+    private boolean isChainBreakEnabled(ItemStack tool) {
         var dataContainer = tool.getPersistentDataContainer();
-        return dataContainer.getOrDefault(chainBreakEnabledKey, PersistentDataType.BOOLEAN, false);
+
+        return chainBreakEnchantmentService.hasEnchantment(tool)
+                && dataContainer.getOrDefault(chainBreakEnabledKey, PersistentDataType.BOOLEAN, false);
     }
 
-	@Override
-	public boolean toggleChainBreak(ItemStack tool) {
+    private boolean isChainBreakCompatible(Material blockType) {
+        return Stream.of(Tag.LOGS, Tag.LEAVES, Tag.COAL_ORES, Tag.COPPER_ORES, Tag.DIAMOND_ORES, Tag.EMERALD_ORES,
+                Tag.GOLD_ORES, Tag.IRON_ORES, Tag.LAPIS_ORES, Tag.REDSTONE_ORES)
+                .anyMatch(tag -> tag.isTagged(blockType))
+                || blockType == Material.NETHER_QUARTZ_ORE || blockType == Material.ANCIENT_DEBRIS;
+    }
+
+    @Override
+    public boolean canStartChainBreak(Block block, ItemStack tool) {
+        return isChainBreakEnabled(tool) && block.isPreferredTool(tool) && isChainBreakCompatible(block.getType());
+    }
+
+    @Override
+    public boolean toggleChainBreak(ItemStack tool) {
+        var enabled = isChainBreakEnabled(tool);
+
         var itemMeta = tool.getItemMeta();
         var container = itemMeta.getPersistentDataContainer();
 
-        var enabled = container.getOrDefault(chainBreakEnabledKey, PersistentDataType.BOOLEAN, false);
         container.set(chainBreakEnabledKey, PersistentDataType.BOOLEAN, !enabled);
-
         tool.setItemMeta(itemMeta);
+
         return !enabled;
-	}
+    }
 }

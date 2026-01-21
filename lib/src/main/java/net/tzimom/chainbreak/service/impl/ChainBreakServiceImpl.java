@@ -1,6 +1,9 @@
 package net.tzimom.chainbreak.service.impl;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -23,8 +26,8 @@ public class ChainBreakServiceImpl implements ChainBreakService {
         this.plugin = plugin;
     }
 
-    private Set<Block> getNeighbors(Block block) {
-        return Set.of(
+    private Collection<Block> getNeighbors(Block block) {
+        return List.of(
                 block.getRelative(BlockFace.UP),
                 block.getRelative(BlockFace.DOWN),
                 block.getRelative(BlockFace.NORTH),
@@ -34,12 +37,12 @@ public class ChainBreakServiceImpl implements ChainBreakService {
     }
 
     private void scheduleNextLayer(Material target, ItemStack tool, LivingEntity user, int remainingRange,
-            Set<Block> visitedBlocks,
-            Set<Block> previousLayer) {
+            Collection<Block> visitedBlocks,
+            Collection<Block> previousLayer) {
         if (remainingRange <= 0)
             return;
 
-        var currentLayer = visitedBlocks.stream()
+        var currentLayer = previousLayer.stream()
                 .flatMap(block -> getNeighbors(block).stream())
                 .filter(block -> !visitedBlocks.contains(block))
                 .filter(block -> block.getType() == target)
@@ -64,9 +67,9 @@ public class ChainBreakServiceImpl implements ChainBreakService {
     public void startChain(Block block, ItemStack tool, LivingEntity user) {
         var blockType = block.getType();
 
-        var visitedBlocks = new HashSet<Block>();
+        var visitedBlocks = new ArrayList<Block>();
         visitedBlocks.add(block);
 
-        scheduleNextLayer(blockType, tool, user, MAX_RANGE, visitedBlocks, Set.of(block));
+        scheduleNextLayer(blockType, tool, user, MAX_RANGE, visitedBlocks, List.of(block));
     }
 }
