@@ -13,29 +13,21 @@ import net.tzimom.chainbreak.services.impl.ChainBreakServiceImpl;
 import net.tzimom.chainbreak.services.impl.CustomEnchantmentServiceImpl;
 
 public class ChainBreakPlugin extends JavaPlugin {
+    private final CustomEnchantmentService customEnchantmentService = new CustomEnchantmentServiceImpl(this);
+    private final RecipeService recipeService = new RecipeServiceImpl(this, customEnchantmentService);
+    private final ChainBreakService chainBreakService = new ChainBreakServiceImpl(this);
+
     @Override
     public void onEnable() {
-        var customEnchantmentService = new CustomEnchantmentServiceImpl(this);
-        var chainBreakService = new ChainBreakServiceImpl(this);
+        var server = getServer();
+        var recipes = recipeService.createRecipes();
 
-        var recipeService = new RecipeServiceImpl(this, customEnchantmentService);
+        recipes.forEach(recipe -> server.addRecipe(recipe));
 
-        registerEventHandlers(customEnchantmentService, chainBreakService);
-        registerRecipes(recipeService);
-    }
-
-    private void registerEventHandlers(CustomEnchantmentService customEnchantmentService,
-            ChainBreakService chainBreakService) {
-        var pluginManager = getServer().getPluginManager();
+        var pluginManager = server.getPluginManager();
 
         pluginManager.registerEvents(new PrepareAnvilEventHandler(customEnchantmentService), this);
         pluginManager.registerEvents(new PrepareGrindstoneEventHandler(customEnchantmentService), this);
         pluginManager.registerEvents(new BlockBreakEventHandler(customEnchantmentService, chainBreakService), this);
-    }
-
-    private void registerRecipes(RecipeService recipeService) {
-        var recipes = recipeService.createRecipes();
-
-        recipes.forEach(recipe -> getServer().addRecipe(recipe));
     }
 }
