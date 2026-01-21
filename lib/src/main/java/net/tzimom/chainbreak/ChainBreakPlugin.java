@@ -22,6 +22,12 @@ public class ChainBreakPlugin extends JavaPlugin {
     private final ChainBreakToolService chainBreakToolService = new ChainBreakToolServiceImpl(this, chainBreakEnchantmentService);
     private final RecipeService recipeService = new RecipeServiceImpl(this, chainBreakEnchantmentService);
 
+    private final PrepareAnvilEventHandler prepareAnvilEventHandler = new PrepareAnvilEventHandler(chainBreakEnchantmentService);
+    private final InventoryClickEventHandler inventoryClickEventHandler = new InventoryClickEventHandler(this, chainBreakEnchantmentService);
+    private final PrepareGrindstoneEventHandler prepareGrindstoneEventHandler = new PrepareGrindstoneEventHandler(chainBreakEnchantmentService);
+    private final PlayerInteractEventHandler playerInteractEventHandler = new PlayerInteractEventHandler(chainBreakToolService, chainBreakEnchantmentService);
+    private final BlockBreakEventHandler blockBreakEventHandler = new BlockBreakEventHandler(chainBreakService, chainBreakToolService);
+
     @Override
     public void onEnable() {
         var server = getServer();
@@ -31,10 +37,10 @@ public class ChainBreakPlugin extends JavaPlugin {
 
         var pluginManager = server.getPluginManager();
 
-        pluginManager.registerEvents(new PrepareAnvilEventHandler(chainBreakEnchantmentService), this);
-        pluginManager.registerEvents(new InventoryClickEventHandler(this, chainBreakEnchantmentService), this);
-        pluginManager.registerEvents(new PrepareGrindstoneEventHandler(chainBreakEnchantmentService), this);
-        pluginManager.registerEvents(new PlayerInteractEventHandler(chainBreakToolService, chainBreakEnchantmentService), this);
-        pluginManager.registerEvents(new BlockBreakEventHandler(chainBreakService, chainBreakToolService), this);
+        pluginManager.registerEvents(prepareAnvilEventHandler, this);
+        pluginManager.registerEvents(inventoryClickEventHandler, this);
+        pluginManager.registerEvents(prepareGrindstoneEventHandler, this);
+        pluginManager.registerEvents(playerInteractEventHandler, this);
+        pluginManager.registerEvents(blockBreakEventHandler, this);
     }
 }
