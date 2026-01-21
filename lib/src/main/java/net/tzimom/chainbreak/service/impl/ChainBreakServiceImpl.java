@@ -12,16 +12,16 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
+import net.tzimom.chainbreak.config.service.ChainBreakConfigService;
 import net.tzimom.chainbreak.service.ChainBreakService;
 
 public class ChainBreakServiceImpl implements ChainBreakService {
-    private static final int MAX_RANGE = 8;
-    private static final int STEP_INTERVAL = 4;
-
     private final Plugin plugin;
+    private final ChainBreakConfigService chainBreakConfigService;
 
-    public ChainBreakServiceImpl(Plugin plugin) {
+    public ChainBreakServiceImpl(Plugin plugin, ChainBreakConfigService chainBreakConfigService) {
         this.plugin = plugin;
+        this.chainBreakConfigService = chainBreakConfigService;
     }
 
     private Collection<Block> getNeighbors(Block block) {
@@ -35,8 +35,7 @@ public class ChainBreakServiceImpl implements ChainBreakService {
     }
 
     private void scheduleNextLayer(Material target, ItemStack tool, LivingEntity user, int remainingRange,
-            Collection<Block> visitedBlocks,
-            Collection<Block> previousLayer) {
+            Collection<Block> visitedBlocks, Collection<Block> previousLayer) {
         if (remainingRange <= 0)
             return;
 
@@ -58,7 +57,7 @@ public class ChainBreakServiceImpl implements ChainBreakService {
             });
 
             scheduleNextLayer(target, tool, user, remainingRange - 1, visitedBlocks, currentLayer);
-        }, STEP_INTERVAL);
+        }, chainBreakConfigService.config().stepInterval());
     }
 
     @Override
@@ -68,6 +67,6 @@ public class ChainBreakServiceImpl implements ChainBreakService {
         var visitedBlocks = new ArrayList<Block>();
         visitedBlocks.add(block);
 
-        scheduleNextLayer(blockType, tool, user, MAX_RANGE, visitedBlocks, List.of(block));
+        scheduleNextLayer(blockType, tool, user, chainBreakConfigService.config().maxRange(), visitedBlocks, List.of(block));
     }
 }
