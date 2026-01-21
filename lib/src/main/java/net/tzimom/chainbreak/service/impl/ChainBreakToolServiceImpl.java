@@ -1,7 +1,5 @@
 package net.tzimom.chainbreak.service.impl;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.stream.Stream;
 
 import org.bukkit.Material;
