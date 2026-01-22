@@ -26,7 +26,7 @@ public class PlayerInteractEventHandler implements Listener {
 
     @EventHandler
     public void handle(PlayerInteractEvent event) {
-        if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK)
+        if (event.getAction() != Action.RIGHT_CLICK_AIR)
             return;
 
         var tool = event.getItem();
