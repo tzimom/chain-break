@@ -23,7 +23,7 @@ tools:
     whitelist: ["#minecraft:logs"]
 
   - items: ["#minecraft:hoes"]
-    whitelist: ["#minecraft:leaves"]
+    whitelist: ["#minecraft:leaves", "#minecraft:wart_blocks"]
 
   - items: ["#minecraft:shovels"]
     whitelist:
