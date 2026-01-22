@@ -32,7 +32,7 @@ public class RecipeServiceImpl implements RecipeService {
         return List.of(new ShapedRecipe(chainBreakBookRecipeKey, chainBreakBook)
                 .shape("aba", "cdc", "aea")
                 .setIngredient('a', Material.CRYING_OBSIDIAN)
-                .setIngredient('b', Material.HEAVY_CORE)
+                .setIngredient('b', Material.DIAMOND)
                 .setIngredient('c', Material.ECHO_SHARD)
                 .setIngredient('d', Material.BOOK)
                 .setIngredient('e', Material.CREAKING_HEART));

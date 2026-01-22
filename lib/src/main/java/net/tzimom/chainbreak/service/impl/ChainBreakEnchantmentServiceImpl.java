@@ -83,12 +83,22 @@ public class ChainBreakEnchantmentServiceImpl implements ChainBreakEnchantmentSe
         var dataContainer = itemMeta.getPersistentDataContainer();
         dataContainer.set(enchantmentKey, PersistentDataType.BOOLEAN, false);
 
-        if (dataContainer.getOrDefault(dummyEnchantmentKey, PersistentDataType.BOOLEAN, false)) {
-            dataContainer.set(dummyEnchantmentKey, PersistentDataType.BOOLEAN, false);
+        item.setItemMeta(itemMeta);
+        clearDummyEnchantment(item);
+    }
 
-            itemMeta.removeEnchant(chainBreakConfigService.config().enchantment().dummy());
-            itemMeta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
-        }
+    @Override
+    public void clearDummyEnchantment(ItemStack item) {
+        var itemMeta = item.getItemMeta();
+        var dataContainer = itemMeta.getPersistentDataContainer();
+
+        if (!dataContainer.getOrDefault(dummyEnchantmentKey, PersistentDataType.BOOLEAN, false))
+            return;
+
+        dataContainer.set(dummyEnchantmentKey, PersistentDataType.BOOLEAN, false);
+
+        itemMeta.removeEnchant(chainBreakConfigService.config().enchantment().dummy());
+        itemMeta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
 
         item.setItemMeta(itemMeta);
     }
