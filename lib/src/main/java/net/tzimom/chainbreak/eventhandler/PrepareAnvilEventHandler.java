@@ -88,8 +88,8 @@ public class PrepareAnvilEventHandler implements Listener {
         if (!(resultMeta instanceof Damageable resultDamageable && otherMeta instanceof Damageable otherDamageable))
             return;
 
-        var resultType = result.getType();
-        var combinedDamage = resultDamageable.getDamage() + otherDamageable.getDamage() - resultType.getMaxDurability();
+        var otherType = other.getType();
+        var combinedDamage = resultDamageable.getDamage() + otherDamageable.getDamage() - otherType.getMaxDurability();
 
         resultDamageable.setDamage(Math.max(combinedDamage, 0));
         result.setItemMeta(resultMeta);
