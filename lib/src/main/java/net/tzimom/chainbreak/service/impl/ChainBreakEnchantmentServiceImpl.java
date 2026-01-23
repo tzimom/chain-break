@@ -12,17 +12,17 @@ import org.bukkit.plugin.Plugin;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import net.tzimom.chainbreak.config.service.ChainBreakConfigService;
+import net.tzimom.chainbreak.config.service.ConfigService;
 import net.tzimom.chainbreak.service.ChainBreakEnchantmentService;
 
 public class ChainBreakEnchantmentServiceImpl implements ChainBreakEnchantmentService {
-    private final ChainBreakConfigService chainBreakConfigService;
+    private final ConfigService configService;
 
     private final NamespacedKey enchantmentKey;
     private final NamespacedKey dummyEnchantmentKey;
 
-    public ChainBreakEnchantmentServiceImpl(Plugin plugin, ChainBreakConfigService chainBreakConfigService) {
-        this.chainBreakConfigService = chainBreakConfigService;
+    public ChainBreakEnchantmentServiceImpl(Plugin plugin, ConfigService configService) {
+        this.configService = configService;
 
         enchantmentKey = new NamespacedKey(plugin, "enchantment.chainbreak");
         dummyEnchantmentKey = new NamespacedKey(plugin, "enchantment.dummy");
@@ -36,12 +36,12 @@ public class ChainBreakEnchantmentServiceImpl implements ChainBreakEnchantmentSe
 
     @Override
     public boolean isEnchantable(Material itemType) {
-        return chainBreakConfigService.config().tools().stream()
+        return configService.config().tools().stream()
                 .anyMatch(tool -> tool.items().contains(itemType));
     }
 
     private Component createLoreComponent() {
-        return Component.text(chainBreakConfigService.config().enchantment().name())
+        return Component.text(configService.config().enchantment().name())
                 .color(NamedTextColor.GRAY)
                 .decoration(TextDecoration.ITALIC, false);
     }
@@ -62,7 +62,7 @@ public class ChainBreakEnchantmentServiceImpl implements ChainBreakEnchantmentSe
         if (itemMeta.getEnchants().isEmpty()) {
             dataContainer.set(dummyEnchantmentKey, PersistentDataType.BOOLEAN, true);
 
-            itemMeta.addEnchant(chainBreakConfigService.config().enchantment().dummy(), 1, true);
+            itemMeta.addEnchant(configService.config().enchantment().dummy(), 1, true);
             itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         }
 
@@ -97,7 +97,7 @@ public class ChainBreakEnchantmentServiceImpl implements ChainBreakEnchantmentSe
 
         dataContainer.set(dummyEnchantmentKey, PersistentDataType.BOOLEAN, false);
 
-        itemMeta.removeEnchant(chainBreakConfigService.config().enchantment().dummy());
+        itemMeta.removeEnchant(configService.config().enchantment().dummy());
         itemMeta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
 
         item.setItemMeta(itemMeta);

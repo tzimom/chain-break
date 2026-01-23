@@ -7,10 +7,10 @@ import org.bukkit.event.inventory.PrepareGrindstoneEvent;
 import net.tzimom.chainbreak.service.ChainBreakEnchantmentService;
 
 public class PrepareGrindstoneEventHandler implements Listener {
-    private final ChainBreakEnchantmentService chainBreakEnchantmentService;
+    private final ChainBreakEnchantmentService enchantmentService;
 
-    public PrepareGrindstoneEventHandler(ChainBreakEnchantmentService chainBreakEnchantmentService) {
-		this.chainBreakEnchantmentService = chainBreakEnchantmentService;
+    public PrepareGrindstoneEventHandler(ChainBreakEnchantmentService enchantmentService) {
+		this.enchantmentService = enchantmentService;
 	}
 
 	@EventHandler
@@ -20,6 +20,6 @@ public class PrepareGrindstoneEventHandler implements Listener {
         if (result == null)
             return;
 
-        chainBreakEnchantmentService.disenchant(result);
+        enchantmentService.disenchant(result);
     }
 }
