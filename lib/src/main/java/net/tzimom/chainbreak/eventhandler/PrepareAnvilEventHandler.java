@@ -1,5 +1,6 @@
 package net.tzimom.chainbreak.eventhandler;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -60,38 +61,37 @@ public class PrepareAnvilEventHandler implements Listener {
         } else if (!secondIsBook || !(firstIsTool || firstIsBook))
             return;
 
-        var result = cloneAndRename(firstItem, renameText);
+        var result = firstItem.clone();
 
+        renameItem(result, renameText);
         mergeDurabilites(result, secondItem);
         mergeEnchantments(result, secondItem);
-        enchantmentService.updateItem(result);
 
         event.setResult(result);
         return;
     }
 
-    private ItemStack cloneAndRename(ItemStack item, String renameText) {
-        var result = item.clone();
-
+    private void renameItem(ItemStack result, String renameText) {
         if (renameText == null || renameText.isEmpty())
-            return result;
+            return;
 
         var itemMeta = result.getItemMeta();
 
         itemMeta.displayName(Component.text(renameText));
         result.setItemMeta(itemMeta);
-
-        return result;
     }
 
     private void mergeDurabilites(ItemStack result, ItemStack other) {
         var resultMeta = result.getItemMeta();
         var otherMeta = other.getItemMeta();
 
-        if (!(result instanceof Damageable resultDamageable && otherMeta instanceof Damageable otherDamageable))
+        if (!(resultMeta instanceof Damageable resultDamageable && otherMeta instanceof Damageable otherDamageable))
             return;
 
-        resultDamageable.setDamage(Math.max(resultDamageable.getDamage() - otherDamageable.getDamage(), 0));
+        var resultType = result.getType();
+        var combinedDamage = resultDamageable.getDamage() + otherDamageable.getDamage() - resultType.getMaxDurability();
+
+        resultDamageable.setDamage(Math.max(combinedDamage, 0));
         result.setItemMeta(resultMeta);
     }
 
