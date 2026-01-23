@@ -12,11 +12,11 @@ import net.tzimom.chainbreak.service.ChainBreakEnchantmentService;
 
 public class InventoryClickEventHandler implements Listener {
     private final Plugin plugin;
-    private final ChainBreakEnchantmentService chainBreakEnchantmentService;
+    private final ChainBreakEnchantmentService enchantmentService;
 
-    public InventoryClickEventHandler(Plugin plugin, ChainBreakEnchantmentService chainBreakEnchantmentService) {
+    public InventoryClickEventHandler(Plugin plugin, ChainBreakEnchantmentService enchantmentService) {
         this.plugin = plugin;
-        this.chainBreakEnchantmentService = chainBreakEnchantmentService;
+        this.enchantmentService = enchantmentService;
     }
 
     @EventHandler
@@ -39,7 +39,7 @@ public class InventoryClickEventHandler implements Listener {
         if (secondItem == null)
             return;
 
-        if (!chainBreakEnchantmentService.hasEnchantment(secondItem))
+        if (!enchantmentService.hasEnchantment(secondItem))
             return;
 
         Bukkit.getScheduler().runTaskLater(plugin, () -> anvilInventory.setSecondItem(null), 1);

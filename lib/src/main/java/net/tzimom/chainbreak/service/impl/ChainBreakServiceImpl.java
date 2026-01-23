@@ -12,16 +12,16 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
-import net.tzimom.chainbreak.config.service.ChainBreakConfigService;
+import net.tzimom.chainbreak.config.service.ConfigService;
 import net.tzimom.chainbreak.service.ChainBreakService;
 
 public class ChainBreakServiceImpl implements ChainBreakService {
     private final Plugin plugin;
-    private final ChainBreakConfigService chainBreakConfigService;
+    private final ConfigService configService;
 
-    public ChainBreakServiceImpl(Plugin plugin, ChainBreakConfigService chainBreakConfigService) {
+    public ChainBreakServiceImpl(Plugin plugin, ConfigService configService) {
         this.plugin = plugin;
-        this.chainBreakConfigService = chainBreakConfigService;
+        this.configService = configService;
     }
 
     private Collection<Block> getNeighbors(Block block) {
@@ -36,7 +36,7 @@ public class ChainBreakServiceImpl implements ChainBreakService {
 
     private void scheduleNextLayer(Block root, Material target, ItemStack tool, LivingEntity user,
             Collection<Block> visitedBlocks, Collection<Block> previousLayer) {
-        var maxRange = chainBreakConfigService.config().maxRange();
+        var maxRange = configService.config().maxRange();
         var maxRangeSquared = maxRange * maxRange;
 
         var currentLayer = previousLayer.stream()
@@ -58,7 +58,7 @@ public class ChainBreakServiceImpl implements ChainBreakService {
             });
 
             scheduleNextLayer(root, target, tool, user, visitedBlocks, currentLayer);
-        }, chainBreakConfigService.config().stepInterval());
+        }, configService.config().stepInterval());
     }
 
     @Override

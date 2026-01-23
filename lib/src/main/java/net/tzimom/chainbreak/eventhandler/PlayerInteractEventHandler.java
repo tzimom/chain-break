@@ -6,22 +6,20 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import net.kyori.adventure.text.Component;
-import net.tzimom.chainbreak.config.service.ChainBreakConfigService;
+import net.tzimom.chainbreak.config.service.ConfigService;
 import net.tzimom.chainbreak.service.ChainBreakEnchantmentService;
 import net.tzimom.chainbreak.service.ChainBreakToolService;
 
 public class PlayerInteractEventHandler implements Listener {
-    private final ChainBreakConfigService chainBreakConfigService;
+    private final ConfigService configService;
     private final ChainBreakToolService chainBreakToolService;
-    private final ChainBreakEnchantmentService chainBreakEnchantmentService;
+    private final ChainBreakEnchantmentService enchantmentService;
 
-    public PlayerInteractEventHandler(
-            ChainBreakConfigService chainBreakConfigService,
-            ChainBreakToolService chainBreakToolService,
-            ChainBreakEnchantmentService chainBreakEnchantmentService) {
-        this.chainBreakConfigService = chainBreakConfigService;
+    public PlayerInteractEventHandler(ConfigService configService, ChainBreakToolService chainBreakToolService,
+            ChainBreakEnchantmentService enchantmentService) {
+        this.configService = configService;
         this.chainBreakToolService = chainBreakToolService;
-        this.chainBreakEnchantmentService = chainBreakEnchantmentService;
+        this.enchantmentService = enchantmentService;
     }
 
     @EventHandler
@@ -34,13 +32,13 @@ public class PlayerInteractEventHandler implements Listener {
         if (tool == null || tool.getType().isAir())
             return;
 
-        if (!chainBreakEnchantmentService.hasEnchantment(tool) || !chainBreakToolService.isTool(tool.getType()))
+        if (!enchantmentService.hasEnchantment(tool) || !chainBreakToolService.isTool(tool.getType()))
             return;
 
         var enabled = chainBreakToolService.toggleChainBreak(tool);
         var player = event.getPlayer();
 
-        var enchantmentName = chainBreakConfigService.config().enchantment().name();
+        var enchantmentName = configService.config().enchantment().name();
 
         player.sendActionBar(Component.text(enchantmentName)
                 .append(Component.space())
