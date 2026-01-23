@@ -62,7 +62,7 @@ public class ChainBreakServiceImpl implements ChainBreakService {
 
     @Override
     public void startChain(Block block, ItemStack tool, LivingEntity user, int level) {
-        var levelConfig = configService.config().enchantment().levels().get(level);
+        var levelConfig = configService.config().enchantment().levels().get(level - 1);
         var blockType = block.getType();
 
         var visitedBlocks = new ArrayList<Block>();
