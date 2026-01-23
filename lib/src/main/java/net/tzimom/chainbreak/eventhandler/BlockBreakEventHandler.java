@@ -4,17 +4,22 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 
+import net.tzimom.chainbreak.service.ChainBreakEnchantmentService;
 import net.tzimom.chainbreak.service.ChainBreakService;
 import net.tzimom.chainbreak.service.ChainBreakToolService;
 
 public class BlockBreakEventHandler implements Listener {
     private final ChainBreakService chainBreakService;
-    private final ChainBreakToolService chainBreakToolService;
+    private final ChainBreakEnchantmentService enchantmentService;
+    private final ChainBreakToolService toolService;
 
-    public BlockBreakEventHandler(ChainBreakService chainBreakService,
-            ChainBreakToolService chainBreakToolService) {
+    public BlockBreakEventHandler(
+            ChainBreakService chainBreakService,
+            ChainBreakEnchantmentService enchantmentService,
+            ChainBreakToolService toolService) {
         this.chainBreakService = chainBreakService;
-        this.chainBreakToolService = chainBreakToolService;
+        this.enchantmentService = enchantmentService;
+        this.toolService = toolService;
     }
 
     @EventHandler
@@ -24,9 +29,10 @@ public class BlockBreakEventHandler implements Listener {
         var inventory = player.getInventory();
         var tool = inventory.getItemInMainHand();
 
-        if (!chainBreakToolService.canStartChainBreak(block, tool))
+        if (!toolService.canStartChainBreak(block, tool))
             return;
 
-        chainBreakService.startChain(block, tool, player);
+        var level = enchantmentService.getEnchantmentLevel(tool);
+        chainBreakService.startChain(block, tool, player, level);
     }
 }

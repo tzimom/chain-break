@@ -1,5 +1,5 @@
 name: chainbreak
-version: "0.2.0"
+version: "0.3.0"
 api-version: "1.21"
 authors: [tzimom, Skylike]
 main: net.tzimom.chainbreak.ChainBreakPlugin

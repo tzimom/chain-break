@@ -33,11 +33,11 @@ public class ChainBreakPlugin extends JavaPlugin {
     private final RecipeService recipeService = new RecipeServiceImpl(this, enchantmentService);
 
     private final Collection<Listener> eventHandlers = List.of(
-        new PrepareAnvilEventHandler(enchantmentService),
+        new PrepareAnvilEventHandler(configService, enchantmentService, toolService),
         new InventoryClickEventHandler(this, enchantmentService),
         new PrepareGrindstoneEventHandler(enchantmentService),
         new PlayerInteractEventHandler(configService, toolService, enchantmentService),
-        new BlockBreakEventHandler(chainBreakService, toolService),
+        new BlockBreakEventHandler(chainBreakService, enchantmentService, toolService),
         new EntityDeathEventHandler(configService, enchantmentService),
         new LootGenerateEventHandler(configService, enchantmentService));
 

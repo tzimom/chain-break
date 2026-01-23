@@ -27,7 +27,7 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     public Collection<Recipe> createRecipes() {
         var chainBreakBook = new ItemStack(Material.ENCHANTED_BOOK);
-        chainBreakEnchantmentService.enchant(chainBreakBook);
+        chainBreakEnchantmentService.enchant(chainBreakBook, 1);
 
         return List.of(new ShapedRecipe(chainBreakBookRecipeKey, chainBreakBook)
                 .shape("aba", "cdc", "aea")

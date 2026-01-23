@@ -1,5 +1,6 @@
 package net.tzimom.chainbreak.eventhandler;
 
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Material;
@@ -25,15 +26,18 @@ public class EntityDeathEventHandler implements Listener {
     public void handle(EntityDeathEvent event) {
         var drops = event.getDrops();
         var entityType = event.getEntityType();
-        var lootChance = configService.config().loot().entities().getOrDefault(entityType, 0d);
-        var random = ThreadLocalRandom.current();
+        var lootChances = configService.config().loot().entities().getOrDefault(entityType, Map.of());
 
-        if (random.nextDouble() > lootChance)
-            return;
+        for (var entry : lootChances.entrySet()) {
+            var random = ThreadLocalRandom.current();
 
-        var item = new ItemStack(Material.ENCHANTED_BOOK);
+            if (random.nextDouble() > entry.getValue())
+                continue;
 
-        enchantmentService.enchant(item);
-        drops.add(item);
+            var item = new ItemStack(Material.ENCHANTED_BOOK);
+
+            enchantmentService.enchant(item, entry.getKey());
+            drops.add(item);
+        }
     }
 }
