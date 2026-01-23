@@ -12,13 +12,13 @@ import net.tzimom.chainbreak.service.ChainBreakToolService;
 
 public class PlayerInteractEventHandler implements Listener {
     private final ConfigService configService;
-    private final ChainBreakToolService chainBreakToolService;
+    private final ChainBreakToolService toolService;
     private final ChainBreakEnchantmentService enchantmentService;
 
-    public PlayerInteractEventHandler(ConfigService configService, ChainBreakToolService chainBreakToolService,
+    public PlayerInteractEventHandler(ConfigService configService, ChainBreakToolService toolService,
             ChainBreakEnchantmentService enchantmentService) {
         this.configService = configService;
-        this.chainBreakToolService = chainBreakToolService;
+        this.toolService = toolService;
         this.enchantmentService = enchantmentService;
     }
 
@@ -32,10 +32,10 @@ public class PlayerInteractEventHandler implements Listener {
         if (tool == null || tool.getType().isAir())
             return;
 
-        if (!enchantmentService.hasEnchantment(tool) || !chainBreakToolService.isTool(tool.getType()))
+        if (!enchantmentService.hasEnchantment(tool) || !toolService.isTool(tool.getType()))
             return;
 
-        var enabled = chainBreakToolService.toggleChainBreak(tool);
+        var enabled = toolService.toggleChainBreak(tool);
         var player = event.getPlayer();
 
         var enchantmentName = configService.config().enchantment().name();

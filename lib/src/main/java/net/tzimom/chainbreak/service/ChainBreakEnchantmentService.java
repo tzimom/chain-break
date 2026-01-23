@@ -1,13 +1,13 @@
 package net.tzimom.chainbreak.service;
 
-import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 public interface ChainBreakEnchantmentService {
-    boolean isEnchantable(Material material);
-    boolean hasEnchantment(ItemStack item);
+    int getEnchantmentLevel(ItemStack item);
+    default boolean hasEnchantment(ItemStack item) { return getEnchantmentLevel(item) >= 1; }
 
-    void enchant(ItemStack item);
+    void enchant(ItemStack item, int level);
     void disenchant(ItemStack item);
-    void clearDummyEnchantment(ItemStack result);
+
+    void updateItem(ItemStack result);
 }

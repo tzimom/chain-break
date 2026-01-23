@@ -18,6 +18,7 @@ import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import net.tzimom.chainbreak.config.ChainBreakConfig;
 import net.tzimom.chainbreak.config.ChainBreakEnchantmentConfig;
+import net.tzimom.chainbreak.config.ChainBreakEnchantmentLevelConfig;
 import net.tzimom.chainbreak.config.ChainBreakToolConfig;
 import net.tzimom.chainbreak.config.LootConfig;
 import net.tzimom.chainbreak.config.service.ConfigService;
@@ -32,14 +33,15 @@ public class ConfigServiceImpl implements ConfigService {
     }
 
     private ChainBreakConfig mapConfig(ConfigurationSection section) {
-        var maxRange = section.getInt("max-range");
-        var stepInterval = section.getInt("step-interval");
-
         var enchantmentConfig = mapEnchantmentConfig(section.getConfigurationSection("enchantment"));
-        var toolConfigs = mapToolConfigs(section.getMapList("tools"));
         var lootConfig = mapLootConfig(section.getConfigurationSection("loot"));
 
-        return new ChainBreakConfig(maxRange, stepInterval, enchantmentConfig, toolConfigs, lootConfig);
+        var toolConfigs = section.getMapList("tools").stream()
+                .map(this::sectionFromMap)
+                .map(this::mapToolConfig)
+                .toList();
+
+        return new ChainBreakConfig(enchantmentConfig, toolConfigs, lootConfig);
     }
 
     private <T extends Keyed> T mapRegistryKeyString(RegistryKey<T> registryKey, String keyString) {
@@ -49,7 +51,7 @@ public class ConfigServiceImpl implements ConfigService {
         return registry.get(key);
     }
 
-    private ConfigurationSection mapToSection(Map<?, ?> map) {
+    private ConfigurationSection sectionFromMap(Map<?, ?> map) {
         var section = new MemoryConfiguration();
         map.forEach((key, value) -> section.set(key.toString(), value));
 
@@ -57,17 +59,21 @@ public class ConfigServiceImpl implements ConfigService {
     }
 
     private ChainBreakEnchantmentConfig mapEnchantmentConfig(ConfigurationSection section) {
-        var dummy = mapRegistryKeyString(RegistryKey.ENCHANTMENT, section.getString("dummy"));
         var name = section.getString("name");
+        var dummy = mapRegistryKeyString(RegistryKey.ENCHANTMENT, section.getString("dummy"));
+        var levels = section.getMapList("levels").stream()
+                .map(this::sectionFromMap)
+                .map(this::mapEnchantmentLevelConfig)
+                .toList();
 
-        return new ChainBreakEnchantmentConfig(dummy, name);
+        return new ChainBreakEnchantmentConfig(name, dummy, levels);
     }
 
-    private Collection<ChainBreakToolConfig> mapToolConfigs(Collection<Map<?, ?>> section) {
-        return section.stream()
-                .map(this::mapToSection)
-                .map(this::mapToolConfig)
-                .toList();
+    private ChainBreakEnchantmentLevelConfig mapEnchantmentLevelConfig(ConfigurationSection section) {
+        var maxRange = section.getInt("max-range");
+        var stepInterval = section.getInt("step-interval");
+
+        return new ChainBreakEnchantmentLevelConfig(maxRange, stepInterval);
     }
 
     private ChainBreakToolConfig mapToolConfig(ConfigurationSection section) {
@@ -96,19 +102,21 @@ public class ConfigServiceImpl implements ConfigService {
 
     private LootConfig mapLootConfig(ConfigurationSection section) {
         var entities = mapBoundedLootConfig(section.getConfigurationSection("entities"), RegistryKey.ENTITY_TYPE);
-        var structures = mapBoundedLootConfig(section.getConfigurationSection("structures"),
-                RegistryKey.STRUCTURE);
+        var structures = mapBoundedLootConfig(section.getConfigurationSection("structures"), RegistryKey.STRUCTURE);
 
         return new LootConfig(entities, structures);
     }
 
-    private <T extends Keyed> Map<T, Double> mapBoundedLootConfig(
+    private <T extends Keyed> Map<T, Map<Integer, Double>> mapBoundedLootConfig(
             ConfigurationSection section,
             RegistryKey<T> registryKey) {
-        return section.getKeys(false).stream()
-                .collect(Collectors.toMap(
-                        keyString -> mapRegistryKeyString(registryKey, keyString),
-                        section::getDouble));
+        return section.getKeys(false).stream().collect(Collectors.toMap(
+                keyString -> mapRegistryKeyString(registryKey, keyString),
+                keyString -> section.getMapList(keyString).stream()
+                        .map(this::sectionFromMap)
+                        .collect(Collectors.toMap(
+                                levelSection -> levelSection.getInt("level"),
+                                levelSection -> levelSection.getDouble("chance")))));
     }
 
     @Override

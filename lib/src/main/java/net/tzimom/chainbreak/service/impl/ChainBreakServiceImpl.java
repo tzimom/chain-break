@@ -35,8 +35,7 @@ public class ChainBreakServiceImpl implements ChainBreakService {
     }
 
     private void scheduleNextLayer(Block root, Material target, ItemStack tool, LivingEntity user,
-            Collection<Block> visitedBlocks, Collection<Block> previousLayer) {
-        var maxRange = configService.config().maxRange();
+            int maxRange, int stepInterval, Collection<Block> visitedBlocks, Collection<Block> previousLayer) {
         var maxRangeSquared = maxRange * maxRange;
 
         var currentLayer = previousLayer.stream()
@@ -57,17 +56,19 @@ public class ChainBreakServiceImpl implements ChainBreakService {
                 tool.damage(1, user);
             });
 
-            scheduleNextLayer(root, target, tool, user, visitedBlocks, currentLayer);
-        }, configService.config().stepInterval());
+            scheduleNextLayer(root, target, tool, user, maxRange, stepInterval, visitedBlocks, currentLayer);
+        }, stepInterval);
     }
 
     @Override
-    public void startChain(Block block, ItemStack tool, LivingEntity user) {
+    public void startChain(Block block, ItemStack tool, LivingEntity user, int level) {
+        var levelConfig = configService.config().enchantment().levels().get(level);
         var blockType = block.getType();
 
         var visitedBlocks = new ArrayList<Block>();
         visitedBlocks.add(block);
 
-        scheduleNextLayer(block, blockType, tool, user, visitedBlocks, List.of(block));
+        scheduleNextLayer(block, blockType, tool, user, levelConfig.maxRange(), levelConfig.stepInterval(),
+                visitedBlocks, List.of(block));
     }
 }

@@ -1,11 +1,12 @@
 package net.tzimom.chainbreak.service.impl;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
-import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 
@@ -18,88 +19,97 @@ import net.tzimom.chainbreak.service.ChainBreakEnchantmentService;
 public class ChainBreakEnchantmentServiceImpl implements ChainBreakEnchantmentService {
     private final ConfigService configService;
 
-    private final NamespacedKey enchantmentKey;
     private final NamespacedKey dummyEnchantmentKey;
+    private final NamespacedKey enchantmentLevelKey;
+    private final NamespacedKey loreLevelKey;
 
     public ChainBreakEnchantmentServiceImpl(Plugin plugin, ConfigService configService) {
         this.configService = configService;
 
-        enchantmentKey = new NamespacedKey(plugin, "enchantment.chainbreak");
         dummyEnchantmentKey = new NamespacedKey(plugin, "enchantment.dummy");
+        enchantmentLevelKey = new NamespacedKey(plugin, "enchantment.chainbreak");
+        loreLevelKey = new NamespacedKey(plugin, "enchantment.lore");
     }
 
     @Override
-    public boolean hasEnchantment(ItemStack item) {
-        return item.getPersistentDataContainer()
-                .getOrDefault(enchantmentKey, PersistentDataType.BOOLEAN, false);
+    public int getEnchantmentLevel(ItemStack item) {
+        var dataContainer = item.getPersistentDataContainer();
+        return dataContainer.getOrDefault(enchantmentLevelKey, PersistentDataType.INTEGER, 0);
     }
 
-    @Override
-    public boolean isEnchantable(Material itemType) {
-        return configService.config().tools().stream()
-                .anyMatch(tool -> tool.items().contains(itemType));
-    }
+    private Component createLoreComponent(int level) {
+        var enchantmentConfig = configService.config().enchantment();
 
-    private Component createLoreComponent() {
-        return Component.text(configService.config().enchantment().name())
+        var component = Component.text(enchantmentConfig.name())
                 .color(NamedTextColor.GRAY)
                 .decoration(TextDecoration.ITALIC, false);
+
+        if (Math.max(level, enchantmentConfig.levels().size()) <= 1)
+            return component;
+
+        return component
+                .append(Component.space())
+                .append(Component.translatable("enchantment.level." + level));
     }
 
     @Override
-    public void enchant(ItemStack item) {
-        disenchant(item);
-
+    public void enchant(ItemStack item, int level) {
         var itemMeta = item.getItemMeta();
-        var lore = itemMeta.hasLore() ? itemMeta.lore() : new ArrayList<Component>();
-
-        lore.addLast(createLoreComponent());
-        itemMeta.lore(lore);
-
         var dataContainer = itemMeta.getPersistentDataContainer();
-        dataContainer.set(enchantmentKey, PersistentDataType.BOOLEAN, true);
 
-        if (itemMeta.getEnchants().isEmpty()) {
-            dataContainer.set(dummyEnchantmentKey, PersistentDataType.BOOLEAN, true);
-
-            itemMeta.addEnchant(configService.config().enchantment().dummy(), 1, true);
-            itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        }
-
+        dataContainer.set(enchantmentLevelKey, PersistentDataType.INTEGER, level);
         item.setItemMeta(itemMeta);
+
+        updateItem(item);
     }
 
     @Override
     public void disenchant(ItemStack item) {
-        if (!hasEnchantment(item))
-            return;
-
-        var itemMeta = item.getItemMeta();
-        var lore = itemMeta.hasLore() ? itemMeta.lore() : new ArrayList<Component>();
-
-        lore = lore.stream().filter(component -> !component.equals(createLoreComponent())).toList();
-        itemMeta.lore(lore);
-
-        var dataContainer = itemMeta.getPersistentDataContainer();
-        dataContainer.set(enchantmentKey, PersistentDataType.BOOLEAN, false);
-
-        item.setItemMeta(itemMeta);
-        clearDummyEnchantment(item);
+        enchant(item, 0);
     }
 
     @Override
-    public void clearDummyEnchantment(ItemStack item) {
+    public void updateItem(ItemStack item) {
+        var dummyEnchantment = configService.config().enchantment().dummy();
+
         var itemMeta = item.getItemMeta();
         var dataContainer = itemMeta.getPersistentDataContainer();
 
-        if (!dataContainer.getOrDefault(dummyEnchantmentKey, PersistentDataType.BOOLEAN, false))
-            return;
+        var loreLevel = dataContainer.getOrDefault(loreLevelKey, PersistentDataType.INTEGER, 0);
+        var lore = itemMeta.hasLore() ? itemMeta.lore() : new ArrayList<Component>();
 
-        dataContainer.set(dummyEnchantmentKey, PersistentDataType.BOOLEAN, false);
+        if (loreLevel >= 1) {
+            lore = lore.stream()
+                    .filter(component -> !component.equals(createLoreComponent(loreLevel)))
+                    .collect(Collectors.toCollection(ArrayList::new));
 
-        itemMeta.removeEnchant(configService.config().enchantment().dummy());
-        itemMeta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
+            dataContainer.set(loreLevelKey, PersistentDataType.INTEGER, 0);
+        }
 
+        var hasDummy = dataContainer.getOrDefault(dummyEnchantmentKey, PersistentDataType.BOOLEAN, false);
+
+        if (hasDummy) {
+            itemMeta.removeEnchant(dummyEnchantment);
+            itemMeta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
+
+            dataContainer.set(dummyEnchantmentKey, PersistentDataType.BOOLEAN, false);
+        }
+
+        var level = getEnchantmentLevel(item);
+
+        if (level >= 1) {
+            lore.addLast(createLoreComponent(level));
+            dataContainer.set(loreLevelKey, PersistentDataType.INTEGER, level);
+
+            if (itemMeta.getEnchants().isEmpty() && !(itemMeta instanceof EnchantmentStorageMeta)) {
+                itemMeta.addEnchant(dummyEnchantment, 1, true);
+                itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+
+                dataContainer.set(dummyEnchantmentKey, PersistentDataType.BOOLEAN, true);
+            }
+        }
+
+        itemMeta.lore(lore);
         item.setItemMeta(itemMeta);
     }
 }

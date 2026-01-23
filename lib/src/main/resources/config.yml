@@ -1,9 +1,14 @@
-max-range: 8
-step-interval: 4
-
 enchantment:
-  dummy: "minecraft:lunge"
   name: "Chain Break"
+  dummy: "minecraft:lunge"
+
+  levels:
+    - max-range: 3
+      step-interval: 10
+    - max-range: 6
+      step-interval: 6
+    - max-range: 9
+      step-interval: 4
 
 tools:
   - items: ["#minecraft:pickaxes"]

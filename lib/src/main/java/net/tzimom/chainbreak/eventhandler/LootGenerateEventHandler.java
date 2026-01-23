@@ -1,6 +1,7 @@
 package net.tzimom.chainbreak.eventhandler;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -35,21 +36,23 @@ public class LootGenerateEventHandler implements Listener {
         var block = container.getBlock();
         var chunk = container.getChunk();
 
-        var lootChance = configService.config().loot().structures().entrySet().stream()
+        var lootChances = configService.config().loot().structures().entrySet().stream()
                 .filter(entry -> chunk.getStructures(entry.getKey()).stream()
                         .map(GeneratedStructure::getPieces)
                         .flatMap(Collection::stream)
                         .anyMatch(piece -> piece.getBoundingBox().contains(block.getBoundingBox())))
-                .map(Entry::getValue).findAny().orElse(0d);
+                .map(Entry::getValue).findAny().orElse(Map.of());
 
         var random = ThreadLocalRandom.current();
 
-        if (random.nextDouble() > lootChance)
-            return;
+        for (var entry : lootChances.entrySet()) {
+            if (random.nextDouble() > entry.getValue())
+                continue;
 
-        var item = new ItemStack(Material.ENCHANTED_BOOK);
+            var item = new ItemStack(Material.ENCHANTED_BOOK);
 
-        enchantmentService.enchant(item);
-        loot.add(item);
+            enchantmentService.enchant(item, entry.getKey());
+            loot.add(item);
+        }
     }
 }
