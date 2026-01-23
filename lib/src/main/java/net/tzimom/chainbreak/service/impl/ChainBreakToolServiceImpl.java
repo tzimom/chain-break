@@ -7,19 +7,19 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 
-import net.tzimom.chainbreak.config.service.ChainBreakConfigService;
+import net.tzimom.chainbreak.config.service.ConfigService;
 import net.tzimom.chainbreak.service.ChainBreakEnchantmentService;
 import net.tzimom.chainbreak.service.ChainBreakToolService;
 
 public class ChainBreakToolServiceImpl implements ChainBreakToolService {
-    private final ChainBreakConfigService chainBreakConfigService;
+    private final ConfigService configService;
     private final ChainBreakEnchantmentService chainBreakEnchantmentService;
 
     private final NamespacedKey chainBreakEnabledKey;
 
-    public ChainBreakToolServiceImpl(Plugin plugin, ChainBreakConfigService chainBreakConfigService,
+    public ChainBreakToolServiceImpl(Plugin plugin, ConfigService configService,
             ChainBreakEnchantmentService chainBreakEnchantmentService) {
-        this.chainBreakConfigService = chainBreakConfigService;
+        this.configService = configService;
         this.chainBreakEnchantmentService = chainBreakEnchantmentService;
 
         chainBreakEnabledKey = new NamespacedKey(plugin, "enchantment.chainbreak.enabled");
@@ -33,7 +33,7 @@ public class ChainBreakToolServiceImpl implements ChainBreakToolService {
     }
 
     private boolean isChainBreakCompatible(Block block, ItemStack tool) {
-        var toolConfigs = chainBreakConfigService.config().tools();
+        var toolConfigs = configService.config().tools();
 
         return block.isPreferredTool(tool) && toolConfigs.stream()
                 .filter(toolConfig -> toolConfig.items().contains(tool.getType()))
@@ -42,7 +42,7 @@ public class ChainBreakToolServiceImpl implements ChainBreakToolService {
 
     @Override
     public boolean isTool(Material itemType) {
-        return chainBreakConfigService.config().tools().stream()
+        return configService.config().tools().stream()
                 .anyMatch(toolConfig -> toolConfig.items().contains(itemType));
     }
 

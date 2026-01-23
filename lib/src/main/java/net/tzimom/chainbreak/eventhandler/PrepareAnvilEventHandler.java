@@ -9,10 +9,10 @@ import net.kyori.adventure.text.Component;
 import net.tzimom.chainbreak.service.ChainBreakEnchantmentService;
 
 public class PrepareAnvilEventHandler implements Listener {
-    private final ChainBreakEnchantmentService chainBreakEnchantmentService;
+    private final ChainBreakEnchantmentService enchantmentService;
 
-    public PrepareAnvilEventHandler(ChainBreakEnchantmentService chainBreakEnchantmentService) {
-        this.chainBreakEnchantmentService = chainBreakEnchantmentService;
+    public PrepareAnvilEventHandler(ChainBreakEnchantmentService enchantmentService) {
+        this.enchantmentService = enchantmentService;
     }
 
     @EventHandler
@@ -25,8 +25,8 @@ public class PrepareAnvilEventHandler implements Listener {
         if (firstItem == null || secondItem == null)
             return;
 
-        if (chainBreakEnchantmentService.hasEnchantment(firstItem)
-                && !chainBreakEnchantmentService.hasEnchantment(secondItem)) {
+        if (enchantmentService.hasEnchantment(firstItem)
+                && !enchantmentService.hasEnchantment(secondItem)) {
             if (secondItem.getEnchantments().isEmpty()) {
                 if (!(secondItem.getItemMeta() instanceof EnchantmentStorageMeta bookMeta))
                     return;
@@ -41,24 +41,24 @@ public class PrepareAnvilEventHandler implements Listener {
                 return;
 
             result = result.clone();
-            chainBreakEnchantmentService.clearDummyEnchantment(result);
+            enchantmentService.clearDummyEnchantment(result);
 
             event.setResult(result);
             return;
         }
 
-        if (!chainBreakEnchantmentService.hasEnchantment(secondItem))
+        if (!enchantmentService.hasEnchantment(secondItem))
             return;
 
         var result = firstItem.clone();
         var resultType = result.getType();
 
-        if (!chainBreakEnchantmentService.isEnchantable(resultType)) {
+        if (!enchantmentService.isEnchantable(resultType)) {
             event.setResult(null);
             return;
         }
 
-        chainBreakEnchantmentService.enchant(result);
+        enchantmentService.enchant(result);
 
         var renameText = view.getRenameText();
 
