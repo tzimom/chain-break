@@ -32,12 +32,12 @@ public class ChainBreakToolServiceImpl implements ChainBreakToolService {
                 && dataContainer.getOrDefault(chainBreakEnabledKey, PersistentDataType.BOOLEAN, false);
     }
 
-    private boolean isChainBreakCompatible(Block block, ItemStack tool) {
+    private boolean isChainBreakCompatible(Material blockType, Material toolType) {
         var toolConfigs = configService.config().tools();
 
-        return block.isPreferredTool(tool) && toolConfigs.stream()
-                .filter(toolConfig -> toolConfig.items().contains(tool.getType()))
-                .anyMatch(toolConfig -> toolConfig.whitelist().contains(block.getType()));
+        return toolConfigs.stream()
+                .filter(toolConfig -> toolConfig.items().contains(toolType))
+                .anyMatch(toolConfig -> toolConfig.whitelist().contains(blockType));
     }
 
     @Override
@@ -48,7 +48,7 @@ public class ChainBreakToolServiceImpl implements ChainBreakToolService {
 
     @Override
     public boolean canStartChainBreak(Block block, ItemStack tool) {
-        return isChainBreakEnabled(tool) && isChainBreakCompatible(block, tool);
+        return isChainBreakEnabled(tool) && isChainBreakCompatible(block.getType(), tool.getType());
     }
 
     @Override
