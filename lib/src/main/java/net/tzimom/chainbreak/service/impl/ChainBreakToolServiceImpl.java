@@ -26,7 +26,7 @@ public class ChainBreakToolServiceImpl implements ChainBreakToolService {
     }
 
     private boolean isChainBreakEnabled(ItemStack tool) {
-        var dataContainer = tool.getPersistentDataContainer();
+        var dataContainer = tool.getItemMeta().getPersistentDataContainer();
 
         return chainBreakEnchantmentService.hasEnchantment(tool)
                 && dataContainer.getOrDefault(chainBreakEnabledKey, PersistentDataType.BOOLEAN, false);

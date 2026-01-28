@@ -34,7 +34,7 @@ public class InventoryClickEventHandler implements Listener {
         if (result == null || result.getType().isAir())
             return;
 
-        var secondItem = anvilInventory.getSecondItem();
+        var secondItem = anvilInventory.getItem(1);
 
         if (secondItem == null)
             return;
@@ -42,6 +42,6 @@ public class InventoryClickEventHandler implements Listener {
         if (!enchantmentService.hasEnchantment(secondItem))
             return;
 
-        Bukkit.getScheduler().runTaskLater(plugin, () -> anvilInventory.setSecondItem(null), 1);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> anvilInventory.setItem(2, null), 1);
     }
 }

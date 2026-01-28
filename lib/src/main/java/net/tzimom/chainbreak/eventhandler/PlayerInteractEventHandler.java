@@ -6,6 +6,9 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.chat.ComponentSerializer;
 import net.tzimom.chainbreak.config.service.ConfigService;
 import net.tzimom.chainbreak.service.ChainBreakEnchantmentService;
 import net.tzimom.chainbreak.service.ChainBreakToolService;
@@ -39,9 +42,11 @@ public class PlayerInteractEventHandler implements Listener {
         var player = event.getPlayer();
 
         var enchantmentName = configService.config().enchantment().name();
-
-        player.sendActionBar(Component.text(enchantmentName)
+        var component = Component.text(enchantmentName)
                 .append(Component.space())
-                .append(Component.text(enabled ? "enabled" : "disabled")));
+                .append(Component.text(enabled ? "enabled" : "disabled"));
+        var componentGson = GsonComponentSerializer.gson().serialize(component);
+
+        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, ComponentSerializer.parse(componentGson));
     }
 }
