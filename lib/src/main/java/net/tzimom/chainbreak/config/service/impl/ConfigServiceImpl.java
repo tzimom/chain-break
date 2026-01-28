@@ -9,13 +9,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.Keyed;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.Tag;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.plugin.Plugin;
 
-import io.papermc.paper.registry.RegistryAccess;
-import io.papermc.paper.registry.RegistryKey;
 import net.tzimom.chainbreak.config.ChainBreakConfig;
 import net.tzimom.chainbreak.config.ChainBreakEnchantmentConfig;
 import net.tzimom.chainbreak.config.ChainBreakEnchantmentLevelConfig;
@@ -44,10 +43,8 @@ public class ConfigServiceImpl implements ConfigService {
         return new ChainBreakConfig(enchantmentConfig, toolConfigs, lootConfig);
     }
 
-    private <T extends Keyed> T mapRegistryKeyString(RegistryKey<T> registryKey, String keyString) {
-        var registry = RegistryAccess.registryAccess().getRegistry(registryKey);
+    private <T extends Keyed> T mapRegistryKeyString(Registry<T> registry, String keyString) {
         var key = NamespacedKey.fromString(keyString);
-
         return registry.get(key);
     }
 
@@ -60,7 +57,7 @@ public class ConfigServiceImpl implements ConfigService {
 
     private ChainBreakEnchantmentConfig mapEnchantmentConfig(ConfigurationSection section) {
         var name = section.getString("name");
-        var dummy = mapRegistryKeyString(RegistryKey.ENCHANTMENT, section.getString("dummy"));
+        var dummy = mapRegistryKeyString(Registry.ENCHANTMENT, section.getString("dummy"));
         var levels = section.getMapList("levels").stream()
                 .map(this::sectionFromMap)
                 .map(this::mapEnchantmentLevelConfig)
@@ -101,15 +98,15 @@ public class ConfigServiceImpl implements ConfigService {
     }
 
     private LootConfig mapLootConfig(ConfigurationSection section) {
-        var entities = mapBoundedLootConfig(section.getConfigurationSection("entities"), RegistryKey.ENTITY_TYPE);
-        var structures = mapBoundedLootConfig(section.getConfigurationSection("structures"), RegistryKey.STRUCTURE);
+        var entities = mapBoundedLootConfig(section.getConfigurationSection("entities"), Registry.ENTITY_TYPE);
+        var structures = mapBoundedLootConfig(section.getConfigurationSection("structures"), Registry.STRUCTURE);
 
         return new LootConfig(entities, structures);
     }
 
     private <T extends Keyed> Map<T, Map<Integer, Double>> mapBoundedLootConfig(
             ConfigurationSection section,
-            RegistryKey<T> registryKey) {
+            Registry<T> registryKey) {
         return section.getKeys(false).stream().collect(Collectors.toMap(
                 keyString -> mapRegistryKeyString(registryKey, keyString),
                 keyString -> section.getMapList(keyString).stream()

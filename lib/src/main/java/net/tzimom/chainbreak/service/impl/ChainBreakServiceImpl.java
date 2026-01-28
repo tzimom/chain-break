@@ -8,8 +8,9 @@ import java.util.stream.Collectors;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.plugin.Plugin;
 
 import net.tzimom.chainbreak.config.service.ConfigService;
@@ -34,7 +35,7 @@ public class ChainBreakServiceImpl implements ChainBreakService {
                 block.getRelative(BlockFace.WEST));
     }
 
-    private void scheduleNextLayer(Block root, Material target, ItemStack tool, LivingEntity user,
+    private void scheduleNextLayer(Block root, Material target, ItemStack tool, Player player,
             int maxRange, int stepInterval, Collection<Block> visitedBlocks, Collection<Block> previousLayer) {
         var maxRangeSquared = maxRange * maxRange;
 
@@ -52,23 +53,29 @@ public class ChainBreakServiceImpl implements ChainBreakService {
 
         plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
             currentLayer.forEach(block -> {
-                block.breakNaturally(tool, true, true);
-                tool.damage(1, user);
+                player.breakBlock(block);
+
+                var toolMeta = tool.getItemMeta();
+
+                if (!(toolMeta instanceof Damageable damageable))
+                    return;
+
+                damageable.setDamage(damageable.getDamage() + 1);
             });
 
-            scheduleNextLayer(root, target, tool, user, maxRange, stepInterval, visitedBlocks, currentLayer);
+            scheduleNextLayer(root, target, tool, player, maxRange, stepInterval, visitedBlocks, currentLayer);
         }, stepInterval);
     }
 
     @Override
-    public void startChain(Block block, ItemStack tool, LivingEntity user, int level) {
+    public void startChain(Block block, ItemStack tool, Player player, int level) {
         var levelConfig = configService.config().enchantment().levels().get(level - 1);
         var blockType = block.getType();
 
         var visitedBlocks = new ArrayList<Block>();
         visitedBlocks.add(block);
 
-        scheduleNextLayer(block, blockType, tool, user, levelConfig.maxRange(), levelConfig.stepInterval(),
+        scheduleNextLayer(block, blockType, tool, player, levelConfig.maxRange(), levelConfig.stepInterval(),
                 visitedBlocks, List.of(block));
     }
 }

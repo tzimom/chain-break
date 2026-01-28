@@ -8,7 +8,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
-import net.kyori.adventure.text.Component;
 import net.tzimom.chainbreak.config.service.ConfigService;
 import net.tzimom.chainbreak.service.ChainBreakEnchantmentService;
 import net.tzimom.chainbreak.service.ChainBreakToolService;
@@ -28,8 +27,8 @@ public class PrepareAnvilEventHandler implements Listener {
     @EventHandler
     public void handle(PrepareAnvilEvent event) {
         var inventory = event.getInventory();
-        var firstItem = inventory.getFirstItem();
-        var secondItem = inventory.getSecondItem();
+        var firstItem = inventory.getItem(0);
+        var secondItem = inventory.getItem(1);
 
         if (firstItem == null || secondItem == null)
             return;
@@ -76,7 +75,7 @@ public class PrepareAnvilEventHandler implements Listener {
 
         var itemMeta = result.getItemMeta();
 
-        itemMeta.displayName(Component.text(renameText));
+        itemMeta.setDisplayName(renameText);
         result.setItemMeta(itemMeta);
     }
 

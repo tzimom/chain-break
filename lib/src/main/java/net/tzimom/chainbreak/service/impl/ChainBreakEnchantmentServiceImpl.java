@@ -13,6 +13,7 @@ import org.bukkit.plugin.Plugin;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.tzimom.chainbreak.config.service.ConfigService;
 import net.tzimom.chainbreak.service.ChainBreakEnchantmentService;
 
@@ -33,11 +34,11 @@ public class ChainBreakEnchantmentServiceImpl implements ChainBreakEnchantmentSe
 
     @Override
     public int getEnchantmentLevel(ItemStack item) {
-        var dataContainer = item.getPersistentDataContainer();
+        var dataContainer = item.getItemMeta().getPersistentDataContainer();
         return dataContainer.getOrDefault(enchantmentLevelKey, PersistentDataType.INTEGER, 0);
     }
 
-    private Component createLoreComponent(int level) {
+    private Component createLoreLineComponent(int level) {
         var enchantmentConfig = configService.config().enchantment();
 
         var component = Component.text(enchantmentConfig.name())
@@ -48,8 +49,13 @@ public class ChainBreakEnchantmentServiceImpl implements ChainBreakEnchantmentSe
             return component;
 
         return component
-                .append(Component.space())
-                .append(Component.translatable("enchantment.level." + level));
+                .appendSpace()
+                .append(Component.translatable("enchantment.level." + level)) ;
+    }
+
+    private String createLoreLine(int level) {
+        var component = createLoreLineComponent(level);
+        return LegacyComponentSerializer.legacySection().serialize(component);
     }
 
     @Override
@@ -76,11 +82,11 @@ public class ChainBreakEnchantmentServiceImpl implements ChainBreakEnchantmentSe
         var dataContainer = itemMeta.getPersistentDataContainer();
 
         var loreLevel = dataContainer.getOrDefault(loreLevelKey, PersistentDataType.INTEGER, 0);
-        var lore = itemMeta.hasLore() ? itemMeta.lore() : new ArrayList<Component>();
+        var lore = itemMeta.hasLore() ? itemMeta.getLore() : new ArrayList<String>();
 
         if (loreLevel >= 1) {
             lore = lore.stream()
-                    .filter(component -> !component.equals(createLoreComponent(loreLevel)))
+                    .filter(component -> !component.equals(createLoreLine(loreLevel)))
                     .collect(Collectors.toCollection(ArrayList::new));
 
             dataContainer.set(loreLevelKey, PersistentDataType.INTEGER, 0);
@@ -98,7 +104,7 @@ public class ChainBreakEnchantmentServiceImpl implements ChainBreakEnchantmentSe
         var level = getEnchantmentLevel(item);
 
         if (level >= 1) {
-            lore.addLast(createLoreComponent(level));
+            lore.add(createLoreLine(level));
             dataContainer.set(loreLevelKey, PersistentDataType.INTEGER, level);
 
             if (itemMeta.getEnchants().isEmpty() && !(itemMeta instanceof EnchantmentStorageMeta)) {
@@ -109,7 +115,7 @@ public class ChainBreakEnchantmentServiceImpl implements ChainBreakEnchantmentSe
             }
         }
 
-        itemMeta.lore(lore);
+        itemMeta.setLore(lore);
         item.setItemMeta(itemMeta);
     }
 }

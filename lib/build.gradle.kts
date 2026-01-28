@@ -5,11 +5,14 @@ plugins {
 repositories {
     mavenCentral()
 
-    maven { url = uri("https://repo.papermc.io/repository/maven-public/") }
+    maven { url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/") }
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc:spigot-api:1.21.11-R0.1-SNAPSHOT")
+    implementation("net.kyori:adventure-api:4.26.1")
+    implementation("net.kyori:adventure-text-serializer-legacy:4.26.1")
+    implementation("net.kyori:adventure-text-serializer-gson:4.26.1")
 }
 
 java {
