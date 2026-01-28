@@ -1,5 +1,7 @@
 package net.tzimom.chainbreak.eventhandler;
 
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -45,8 +47,11 @@ public class PlayerInteractEventHandler implements Listener {
         var component = Component.text(enchantmentName)
                 .append(Component.space())
                 .append(Component.text(enabled ? "enabled" : "disabled"));
-        var componentGson = GsonComponentSerializer.gson().serialize(component);
 
+        var componentGson = GsonComponentSerializer.gson().serialize(component);
         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, ComponentSerializer.parse(componentGson));
+
+        var sound = enabled ? Sound.BLOCK_NOTE_BLOCK_PLING : Sound.BLOCK_NOTE_BLOCK_BASS;
+        player.playSound(player.getLocation(), sound, SoundCategory.UI, 1f, 1f);
     }
 }
