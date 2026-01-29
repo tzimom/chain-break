@@ -5,8 +5,10 @@ enchantment:
   levels:
     - max-range: 3
       step-interval: 10
+
     - max-range: 6
       step-interval: 6
+
     - max-range: 9
       step-interval: 4
 
@@ -41,3 +43,16 @@ tools:
 loot:
   entities: {}
   structures: {}
+
+recipes:
+  - shape: ["aba", "cdc", "aea"]
+    ingredients:
+      a: "minecraft:crying_obsidian"
+      b: "minecraft:diamond"
+      c: "minecraft:echo_shard"
+      d: "minecraft:book"
+      e: "minecraft:creaking_heart"
+
+    result:
+      material: "minecraft:enchanted_book"
+      chain-break-level: 1
