@@ -3,5 +3,3 @@ plugins {
 }
 
 rootProject.name = "chain-break"
-
-include("lib")
