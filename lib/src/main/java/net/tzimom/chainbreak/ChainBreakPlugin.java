@@ -30,7 +30,7 @@ public class ChainBreakPlugin extends JavaPlugin {
     private final ChainBreakService chainBreakService = new ChainBreakServiceImpl(this, configService);
     private final ChainBreakEnchantmentService enchantmentService = new ChainBreakEnchantmentServiceImpl(this, configService);
     private final ChainBreakToolService toolService = new ChainBreakToolServiceImpl(this, configService, enchantmentService);
-    private final RecipeService recipeService = new RecipeServiceImpl(this, enchantmentService);
+    private final RecipeService recipeService = new RecipeServiceImpl(this, configService, enchantmentService);
 
     private final Collection<Listener> eventHandlers = List.of(
         new PrepareAnvilEventHandler(configService, enchantmentService, toolService),

@@ -20,6 +20,8 @@ import net.tzimom.chainbreak.config.ChainBreakEnchantmentConfig;
 import net.tzimom.chainbreak.config.ChainBreakEnchantmentLevelConfig;
 import net.tzimom.chainbreak.config.ChainBreakToolConfig;
 import net.tzimom.chainbreak.config.LootConfig;
+import net.tzimom.chainbreak.config.RecipeConfig;
+import net.tzimom.chainbreak.config.RecipeResultConfig;
 import net.tzimom.chainbreak.config.service.ConfigService;
 
 public class ConfigServiceImpl implements ConfigService {
@@ -40,7 +42,25 @@ public class ConfigServiceImpl implements ConfigService {
                 .map(this::mapToolConfig)
                 .toList();
 
-        return new ChainBreakConfig(enchantmentConfig, toolConfigs, lootConfig);
+        var recipeConfigs = section.getMapList("recipes").stream()
+                .map(this::sectionFromMap)
+                .map(this::mapRecipeConfig)
+                .toList();
+
+        return new ChainBreakConfig(enchantmentConfig, toolConfigs, lootConfig, recipeConfigs);
+    }
+
+    private ConfigurationSection sectionFromMap(Map<?, ?> map) {
+        var section = new MemoryConfiguration();
+
+        map.forEach((key, value) -> {
+            if (value instanceof Map<?, ?> nestedMap)
+                section.set(key.toString(), sectionFromMap(nestedMap));
+            else
+                section.set(key.toString(), value);
+        });
+
+        return section;
     }
 
     private <T extends Keyed> T mapRegistryKeyString(Registry<T> registry, String keyString) {
@@ -48,16 +68,10 @@ public class ConfigServiceImpl implements ConfigService {
         return registry.get(key);
     }
 
-    private ConfigurationSection sectionFromMap(Map<?, ?> map) {
-        var section = new MemoryConfiguration();
-        map.forEach((key, value) -> section.set(key.toString(), value));
-
-        return section;
-    }
-
     private ChainBreakEnchantmentConfig mapEnchantmentConfig(ConfigurationSection section) {
         var name = section.getString("name");
         var dummy = mapRegistryKeyString(Registry.ENCHANTMENT, section.getString("dummy"));
+
         var levels = section.getMapList("levels").stream()
                 .map(this::sectionFromMap)
                 .map(this::mapEnchantmentLevelConfig)
@@ -106,14 +120,36 @@ public class ConfigServiceImpl implements ConfigService {
 
     private <T extends Keyed> Map<T, Map<Integer, Double>> mapBoundedLootConfig(
             ConfigurationSection section,
-            Registry<T> registryKey) {
+            Registry<T> registry) {
         return section.getKeys(false).stream().collect(Collectors.toMap(
-                keyString -> mapRegistryKeyString(registryKey, keyString),
+                keyString -> mapRegistryKeyString(registry, keyString),
                 keyString -> section.getMapList(keyString).stream()
                         .map(this::sectionFromMap)
                         .collect(Collectors.toMap(
                                 levelSection -> levelSection.getInt("level"),
                                 levelSection -> levelSection.getDouble("chance")))));
+    }
+
+    private RecipeConfig mapRecipeConfig(ConfigurationSection section) {
+        var shape = section.getStringList("shape").toArray(String[]::new);
+        var ingredients = mapRecipeIngredients(section.getConfigurationSection("ingredients"));
+        var result = mapRecipeResultConfig(section.getConfigurationSection("result"));
+
+        return new RecipeConfig(shape, ingredients, result);
+    }
+
+    private Map<Character, Material> mapRecipeIngredients(ConfigurationSection section) {
+        return section.getKeys(false).stream().collect(Collectors.toMap(
+                keyString -> keyString.charAt(0),
+                keyString -> Material.matchMaterial(section.getString(keyString))));
+    }
+
+    private RecipeResultConfig mapRecipeResultConfig(ConfigurationSection section) {
+        var material = Material.matchMaterial(section.getString("material"));
+        var amount = section.getInt("amount", 1);
+        var chainBreakLevel = section.getInt("chain-break-level");
+
+        return new RecipeResultConfig(material, amount, chainBreakLevel);
     }
 
     @Override
