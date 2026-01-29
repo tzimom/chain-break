@@ -47,7 +47,10 @@ public class ConfigServiceImpl implements ConfigService {
                 .map(this::mapRecipeConfig)
                 .toList();
 
-        return new ChainBreakConfig(enchantmentConfig, toolConfigs, lootConfig, recipeConfigs);
+        var toggleOnSound = mapRegistryKeyString(Registry.SOUNDS, section.getString("toggle_on_sound"));
+        var toggleOffSound = mapRegistryKeyString(Registry.SOUNDS, section.getString("toggle_off_sound"));
+
+        return new ChainBreakConfig(enchantmentConfig, toolConfigs, lootConfig, recipeConfigs, toggleOnSound, toggleOffSound);
     }
 
     private ConfigurationSection sectionFromMap(Map<?, ?> map) {
@@ -81,8 +84,8 @@ public class ConfigServiceImpl implements ConfigService {
     }
 
     private ChainBreakEnchantmentLevelConfig mapEnchantmentLevelConfig(ConfigurationSection section) {
-        var maxRange = section.getInt("max-range");
-        var stepInterval = section.getInt("step-interval");
+        var maxRange = section.getInt("max_range");
+        var stepInterval = section.getInt("step_interval");
 
         return new ChainBreakEnchantmentLevelConfig(maxRange, stepInterval);
     }
@@ -147,7 +150,7 @@ public class ConfigServiceImpl implements ConfigService {
     private RecipeResultConfig mapRecipeResultConfig(ConfigurationSection section) {
         var material = Material.matchMaterial(section.getString("material"));
         var amount = section.getInt("amount", 1);
-        var chainBreakLevel = section.getInt("chain-break-level");
+        var chainBreakLevel = section.getInt("chain_break_level");
 
         return new RecipeResultConfig(material, amount, chainBreakLevel);
     }

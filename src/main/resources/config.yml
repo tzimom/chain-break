@@ -3,14 +3,14 @@ enchantment:
   dummy: "minecraft:lunge"
 
   levels:
-    - max-range: 3
-      step-interval: 10
+    - max_range: 3
+      step_interval: 10
 
-    - max-range: 6
-      step-interval: 6
+    - max_range: 6
+      step_interval: 6
 
-    - max-range: 9
-      step-interval: 4
+    - max_range: 9
+      step_interval: 4
 
 tools:
   - items: ["#minecraft:pickaxes"]
@@ -55,4 +55,7 @@ recipes:
 
     result:
       material: "minecraft:enchanted_book"
-      chain-break-level: 1
+      chain_break_level: 1
+
+toggle_on_sound: "minecraft:block.beacon.activate"
+toggle_off_sound: "minecraft:block.beacon.deactivate"
