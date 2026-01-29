@@ -47,7 +47,10 @@ public class ConfigServiceImpl implements ConfigService {
                 .map(this::mapRecipeConfig)
                 .toList();
 
-        return new ChainBreakConfig(enchantmentConfig, toolConfigs, lootConfig, recipeConfigs);
+        var toggleOnSound = mapRegistryKeyString(Registry.SOUNDS, section.getString("toggle_on_sound"));
+        var toggleOffSound = mapRegistryKeyString(Registry.SOUNDS, section.getString("toggle_off_sound"));
+
+        return new ChainBreakConfig(enchantmentConfig, toolConfigs, lootConfig, recipeConfigs, toggleOnSound, toggleOffSound);
     }
 
     private ConfigurationSection sectionFromMap(Map<?, ?> map) {
