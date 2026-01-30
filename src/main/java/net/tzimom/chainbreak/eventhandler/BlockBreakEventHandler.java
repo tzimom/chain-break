@@ -29,6 +29,12 @@ public class BlockBreakEventHandler implements Listener {
         var inventory = player.getInventory();
         var tool = inventory.getItemInMainHand();
 
+        if (chainBreakService.isBlockInChainBreak(block))
+            return;
+
+        if (tool == null)
+            return;
+
         if (!toolService.canStartChainBreak(block, tool))
             return;
 

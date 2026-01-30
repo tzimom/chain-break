@@ -6,4 +6,5 @@ import org.bukkit.inventory.ItemStack;
 
 public interface ChainBreakService {
     void startChain(Block block, ItemStack tool, Player player, int level);
+    boolean isBlockInChainBreak(Block block);
 }
