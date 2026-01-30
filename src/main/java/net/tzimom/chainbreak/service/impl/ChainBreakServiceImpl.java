@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -52,8 +53,19 @@ public class ChainBreakServiceImpl implements ChainBreakService {
         visitedBlocks.addAll(currentLayer);
 
         plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+<<<<<<< Updated upstream
             currentLayer.forEach(block -> {
                 player.breakBlock(block);
+=======
+            if (!player.getInventory().getItemInMainHand().equals(tool))
+                return;
+
+            currentLayer.forEach(block -> {
+                block.setMetadata(metadataKey, new FixedMetadataValue(plugin, true));
+                player.playSound(block.getLocation(), block.getBlockData().getSoundGroup().getBreakSound(), 1f, 1f);
+                player.breakBlock(block);
+                block.removeMetadata(metadataKey, plugin);
+>>>>>>> Stashed changes
 
                 var toolMeta = tool.getItemMeta();
 
