@@ -55,16 +55,14 @@ public class ChainBreakServiceImpl implements ChainBreakService {
         visitedBlocks.addAll(currentLayer);
 
         plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-            if (player.getInventory().getItemInMainHand() != tool)
+            if (!player.getInventory().getItemInMainHand().equals(tool))
                 return;
 
             currentLayer.forEach(block -> {
                 block.setMetadata(metadataKey, new FixedMetadataValue(plugin, true));
-
-                player.breakBlock(block);
                 player.playSound(block.getLocation(), block.getBlockData().getSoundGroup().getBreakSound(), 1f, 1f);
-
-                block.removeMetadata("chainbreak", plugin);
+                player.breakBlock(block);
+                block.removeMetadata(metadataKey, plugin);
 
                 var toolMeta = tool.getItemMeta();
 
