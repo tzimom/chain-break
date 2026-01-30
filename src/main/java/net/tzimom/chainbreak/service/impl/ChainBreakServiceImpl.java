@@ -10,7 +10,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
 
@@ -63,13 +62,6 @@ public class ChainBreakServiceImpl implements ChainBreakService {
                 player.playSound(block.getLocation(), block.getBlockData().getSoundGroup().getBreakSound(), 1f, 1f);
                 player.breakBlock(block);
                 block.removeMetadata(metadataKey, plugin);
-
-                var toolMeta = tool.getItemMeta();
-
-                if (!(toolMeta instanceof Damageable damageable))
-                    return;
-
-                damageable.setDamage(damageable.getDamage() + 1);
             });
 
             scheduleNextLayer(root, target, tool, player, maxRange, stepInterval, visitedBlocks, currentLayer);
