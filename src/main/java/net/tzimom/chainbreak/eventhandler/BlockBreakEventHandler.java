@@ -1,5 +1,6 @@
 package net.tzimom.chainbreak.eventhandler;
 
+import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -28,6 +29,12 @@ public class BlockBreakEventHandler implements Listener {
         var block = event.getBlock();
         var inventory = player.getInventory();
         var tool = inventory.getItemInMainHand();
+
+        if (chainBreakService.isBlockInChainBreak(block))
+            return;
+
+        if (tool == null || tool.getType() == Material.AIR)
+            return;
 
         if (!toolService.canStartChainBreak(block, tool))
             return;

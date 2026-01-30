@@ -10,13 +10,15 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
 
 import net.tzimom.chainbreak.config.service.ConfigService;
 import net.tzimom.chainbreak.service.ChainBreakService;
 
 public class ChainBreakServiceImpl implements ChainBreakService {
+    private static final String metadataKey = "chainbreak";
+
     private final Plugin plugin;
     private final ConfigService configService;
 
@@ -52,15 +54,14 @@ public class ChainBreakServiceImpl implements ChainBreakService {
         visitedBlocks.addAll(currentLayer);
 
         plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+            if (!player.getInventory().getItemInMainHand().equals(tool))
+                return;
+
             currentLayer.forEach(block -> {
+                block.setMetadata(metadataKey, new FixedMetadataValue(plugin, true));
+                player.playSound(block.getLocation(), block.getBlockData().getSoundGroup().getBreakSound(), 1f, 1f);
                 player.breakBlock(block);
-
-                var toolMeta = tool.getItemMeta();
-
-                if (!(toolMeta instanceof Damageable damageable))
-                    return;
-
-                damageable.setDamage(damageable.getDamage() + 1);
+                block.removeMetadata(metadataKey, plugin);
             });
 
             scheduleNextLayer(root, target, tool, player, maxRange, stepInterval, visitedBlocks, currentLayer);
@@ -77,5 +78,10 @@ public class ChainBreakServiceImpl implements ChainBreakService {
 
         scheduleNextLayer(block, blockType, tool, player, levelConfig.maxRange(), levelConfig.stepInterval(),
                 visitedBlocks, List.of(block));
+    }
+
+    @Override
+    public boolean isBlockInChainBreak(Block block) {
+        return block.hasMetadata(metadataKey);
     }
 }

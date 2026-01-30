@@ -26,6 +26,9 @@ public class ChainBreakToolServiceImpl implements ChainBreakToolService {
     }
 
     private boolean isChainBreakEnabled(ItemStack tool) {
+        if (tool == null || !tool.hasItemMeta())
+            return false;
+
         var dataContainer = tool.getItemMeta().getPersistentDataContainer();
 
         return chainBreakEnchantmentService.hasEnchantment(tool)
