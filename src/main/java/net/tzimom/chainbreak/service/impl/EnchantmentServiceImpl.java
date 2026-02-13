@@ -15,16 +15,16 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.tzimom.chainbreak.config.service.ConfigService;
-import net.tzimom.chainbreak.service.ChainBreakEnchantmentService;
+import net.tzimom.chainbreak.service.EnchantmentService;
 
-public class ChainBreakEnchantmentServiceImpl implements ChainBreakEnchantmentService {
+public class EnchantmentServiceImpl implements EnchantmentService {
     private final ConfigService configService;
 
     private final NamespacedKey dummyEnchantmentKey;
     private final NamespacedKey enchantmentLevelKey;
     private final NamespacedKey loreLevelKey;
 
-    public ChainBreakEnchantmentServiceImpl(Plugin plugin, ConfigService configService) {
+    public EnchantmentServiceImpl(Plugin plugin, ConfigService configService) {
         this.configService = configService;
 
         dummyEnchantmentKey = new NamespacedKey(plugin, "enchantment.dummy");
@@ -36,26 +36,6 @@ public class ChainBreakEnchantmentServiceImpl implements ChainBreakEnchantmentSe
     public int getEnchantmentLevel(ItemStack item) {
         var dataContainer = item.getItemMeta().getPersistentDataContainer();
         return dataContainer.getOrDefault(enchantmentLevelKey, PersistentDataType.INTEGER, 0);
-    }
-
-    private Component createLoreLineComponent(int level) {
-        var enchantmentConfig = configService.config().enchantment();
-
-        var component = Component.text(enchantmentConfig.name())
-                .color(NamedTextColor.GRAY)
-                .decoration(TextDecoration.ITALIC, false);
-
-        if (Math.max(level, enchantmentConfig.levels().size()) <= 1)
-            return component;
-
-        return component
-                .appendSpace()
-                .append(Component.translatable("enchantment.level." + level)) ;
-    }
-
-    private String createLoreLine(int level) {
-        var component = createLoreLineComponent(level);
-        return LegacyComponentSerializer.legacySection().serialize(component);
     }
 
     @Override
@@ -74,6 +54,26 @@ public class ChainBreakEnchantmentServiceImpl implements ChainBreakEnchantmentSe
         enchant(item, 0);
     }
 
+    private String createLoreLine(int level) {
+        var component = createLoreLineComponent(level);
+        return LegacyComponentSerializer.legacySection().serialize(component);
+    }
+
+    private Component createLoreLineComponent(int level) {
+        var enchantmentConfig = configService.config().enchantment();
+
+        var component = Component.text(enchantmentConfig.name())
+                .color(NamedTextColor.GRAY)
+                .decoration(TextDecoration.ITALIC, false);
+
+        if (Math.max(level, enchantmentConfig.levels().size()) <= 1)
+            return component;
+
+        return component
+                .appendSpace()
+                .append(Component.translatable("enchantment.level." + level)) ;
+    }
+
     @Override
     public void updateItem(ItemStack item) {
         var dummyEnchantment = configService.config().enchantment().dummy();
@@ -85,8 +85,10 @@ public class ChainBreakEnchantmentServiceImpl implements ChainBreakEnchantmentSe
         var lore = itemMeta.hasLore() ? itemMeta.getLore() : new ArrayList<String>();
 
         if (loreLevel >= 1) {
+            var loreLine = createLoreLine(loreLevel);
+
             lore = lore.stream()
-                    .filter(component -> !component.equals(createLoreLine(loreLevel)))
+                    .filter(component -> !component.equals(loreLine))
                     .collect(Collectors.toCollection(ArrayList::new));
 
             dataContainer.set(loreLevelKey, PersistentDataType.INTEGER, 0);

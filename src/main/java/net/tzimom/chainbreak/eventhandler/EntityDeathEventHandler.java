@@ -10,14 +10,14 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 
 import net.tzimom.chainbreak.config.service.ConfigService;
-import net.tzimom.chainbreak.service.ChainBreakEnchantmentService;
+import net.tzimom.chainbreak.service.EnchantmentService;
 
 public class EntityDeathEventHandler implements Listener {
     private final ConfigService configService;
-    private final ChainBreakEnchantmentService enchantmentService;
+    private final EnchantmentService enchantmentService;
 
     public EntityDeathEventHandler(ConfigService configService,
-            ChainBreakEnchantmentService enchantmentService) {
+            EnchantmentService enchantmentService) {
         this.configService = configService;
         this.enchantmentService = enchantmentService;
     }

@@ -8,13 +8,13 @@ import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.plugin.Plugin;
 
-import net.tzimom.chainbreak.service.ChainBreakEnchantmentService;
+import net.tzimom.chainbreak.service.EnchantmentService;
 
 public class InventoryClickEventHandler implements Listener {
     private final Plugin plugin;
-    private final ChainBreakEnchantmentService enchantmentService;
+    private final EnchantmentService enchantmentService;
 
-    public InventoryClickEventHandler(Plugin plugin, ChainBreakEnchantmentService enchantmentService) {
+    public InventoryClickEventHandler(Plugin plugin, EnchantmentService enchantmentService) {
         this.plugin = plugin;
         this.enchantmentService = enchantmentService;
     }
