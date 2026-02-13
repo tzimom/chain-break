@@ -7,8 +7,10 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.SoundCategory;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -19,21 +21,25 @@ import org.bukkit.plugin.Plugin;
 
 import net.tzimom.chainbreak.config.service.ConfigService;
 import net.tzimom.chainbreak.service.ChainBreakService;
-import net.tzimom.chainbreak.service.ChainBreakToolService;
+import net.tzimom.chainbreak.service.EnchantmentService;
+import net.tzimom.chainbreak.service.ToolService;
 
 public class ChainBreakServiceImpl implements ChainBreakService {
     private static final String metadataKey = "chainbreak";
 
     private final Plugin plugin;
     private final ConfigService configService;
-    private final ChainBreakToolService toolService;
+    private final ToolService toolService;
+    private final EnchantmentService enchantmentService;
 
     private final NamespacedKey tagKey;
 
-    public ChainBreakServiceImpl(Plugin plugin, ConfigService configService, ChainBreakToolService toolService) {
+    public ChainBreakServiceImpl(Plugin plugin, ConfigService configService, ToolService toolService,
+            EnchantmentService enchantmentService) {
         this.plugin = plugin;
         this.configService = configService;
         this.toolService = toolService;
+        this.enchantmentService = enchantmentService;
 
         tagKey = new NamespacedKey(plugin, "tool.tag");
     }
@@ -66,61 +72,88 @@ public class ChainBreakServiceImpl implements ChainBreakService {
         return uuid;
     }
 
-    private void breakLayer(Block root, Material target, UUID toolTag, Player player,
-            int maxRange, int stepInterval, Collection<Block> visitedBlocks, Collection<Block> previousLayer) {
+    private Collection<Block> getNextLayer(ChainBreakInfo info, Collection<Block> visitedBlocks,
+            Collection<Block> previousLayer) {
+        var maxRange = info.maxRange();
         var maxRangeSquared = maxRange * maxRange;
-        var currentLayer = previousLayer.stream()
-                .flatMap(block -> getNeighbors(block).stream())
+        var root = info.root();
+
+        return previousLayer.stream()
+                .map(this::getNeighbors)
+                .flatMap(Collection::stream)
                 .filter(block -> !visitedBlocks.contains(block))
-                .filter(block -> block.getType() == target)
+                .filter(block -> block.getType() == info.target())
                 .filter(block -> block.getLocation().subtract(root.getLocation()).lengthSquared() <= maxRangeSquared)
                 .collect(Collectors.toSet());
-
-        if (currentLayer.isEmpty())
-            return;
-
-        visitedBlocks.addAll(currentLayer);
-
-        var tool = player.getInventory().getItemInMainHand();
-
-        if (!getTag(tool).equals(toolTag))
-            return;
-
-        if (!toolService.isChainBreakEnabled(tool))
-            return;
-
-        currentLayer.forEach(block -> {
-            block.setMetadata(metadataKey, new FixedMetadataValue(plugin, true));
-            player.playSound(block.getLocation(), block.getBlockData().getSoundGroup().getBreakSound(), 1f, 1f);
-            player.breakBlock(block);
-            block.removeMetadata(metadataKey, plugin);
-        });
-
-        scheduleNextLayer(root, target, toolTag, player, maxRange, stepInterval, visitedBlocks, currentLayer);
     }
 
-    private void scheduleNextLayer(Block root, Material target, UUID toolTag, Player player, int maxRange,
-            int stepInterval, Collection<Block> visitedBlocks, Collection<Block> previousLayer) {
-        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-            breakLayer(root, target, toolTag, player, maxRange, stepInterval, visitedBlocks, previousLayer);
-        }, stepInterval);
+    private void breakLayer(ChainBreakInfo info, Collection<Block> visitedBlocks, Collection<Block> layer) {
+        var player = info.player();
+
+        for (var block : layer) {
+            var metadataValue = new FixedMetadataValue(plugin, true);
+            var location = block.getLocation();
+            var sound = block.getBlockData().getSoundGroup().getBreakSound();
+
+            block.setMetadata(metadataKey, metadataValue);
+
+            if (player.breakBlock(block))
+                player.playSound(location, sound, SoundCategory.BLOCKS, 1f, 1f);
+
+            block.removeMetadata(metadataKey, plugin);
+        }
+    }
+
+    private void queueNext(ChainBreakInfo info, Collection<Block> visitedBlocks, Collection<Block> previousLayer) {
+        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin,
+                () -> propagate(info, visitedBlocks, previousLayer), info.stepInterval());
+    }
+
+    private void propagate(ChainBreakInfo info, Collection<Block> visitedBlocks, Collection<Block> previousLayer) {
+        var tool = info.player().getInventory().getItemInMainHand();
+
+        if (!getTag(tool).equals(info.toolTag()))
+            return;
+
+        if (!toolService.isActive(tool))
+            return;
+
+        var nextLayer = getNextLayer(info, visitedBlocks, previousLayer);
+
+        if (nextLayer.isEmpty())
+            return;
+
+        visitedBlocks.addAll(nextLayer);
+
+        breakLayer(info, visitedBlocks, nextLayer);
+        queueNext(info, visitedBlocks, nextLayer);
     }
 
     @Override
-    public void startChain(Block block, ItemStack tool, Player player, int level) {
-        var levelConfig = configService.config().enchantment().levels().get(level - 1);
-        var blockType = block.getType();
+    public void tryStartChainBreak(Player player, Block root, ItemStack tool) {
+        if (root.hasMetadata(metadataKey))
+            return;
+
+        if (tool == null || tool.getType() == Material.AIR)
+            return;
+
+        if (!toolService.isCompatible(tool.getType(), root.getType()) || !toolService.isActive(tool))
+            return;
+
+        var target = root.getType();
         var toolTag = getTag(tool);
+        var level = enchantmentService.getEnchantmentLevel(tool);
+        var levelConfig = configService.config().enchantment().level(level);
+        var info = new ChainBreakInfo(player, root, target, toolTag, levelConfig.maxRange(),
+                levelConfig.stepInterval());
 
         var visitedBlocks = new ArrayList<Block>();
-        visitedBlocks.add(block);
+        visitedBlocks.add(root);
 
-        scheduleNextLayer(block, blockType, toolTag, player, levelConfig.maxRange(), levelConfig.stepInterval(),
-                visitedBlocks, List.of(block));
+        queueNext(info, visitedBlocks, List.of(root));
     }
 
-    @Override
-    public boolean isBlockInChainBreak(Block block) {
-        return block.hasMetadata(metadataKey);
+    private record ChainBreakInfo(Player player, Block root, Material target, UUID toolTag, int maxRange,
+            int stepInterval) {
     }
 }

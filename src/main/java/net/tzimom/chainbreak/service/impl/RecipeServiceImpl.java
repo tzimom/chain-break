@@ -10,14 +10,14 @@ import org.bukkit.plugin.Plugin;
 
 import net.tzimom.chainbreak.service.RecipeService;
 import net.tzimom.chainbreak.config.service.ConfigService;
-import net.tzimom.chainbreak.service.ChainBreakEnchantmentService;
+import net.tzimom.chainbreak.service.EnchantmentService;
 
 public class RecipeServiceImpl implements RecipeService {
     private final Plugin plugin;
     private final ConfigService configService;
-    private final ChainBreakEnchantmentService enchantmentService;
+    private final EnchantmentService enchantmentService;
 
-    public RecipeServiceImpl(Plugin plugin, ConfigService configService, ChainBreakEnchantmentService enchantmentService) {
+    public RecipeServiceImpl(Plugin plugin, ConfigService configService, EnchantmentService enchantmentService) {
         this.plugin = plugin;
         this.configService = configService;
         this.enchantmentService = enchantmentService;

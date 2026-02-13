@@ -9,16 +9,16 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 import net.tzimom.chainbreak.config.service.ConfigService;
-import net.tzimom.chainbreak.service.ChainBreakEnchantmentService;
-import net.tzimom.chainbreak.service.ChainBreakToolService;
+import net.tzimom.chainbreak.service.EnchantmentService;
+import net.tzimom.chainbreak.service.ToolService;
 
 public class PrepareAnvilEventHandler implements Listener {
     private final ConfigService configService;
-    private final ChainBreakEnchantmentService enchantmentService;
-    private final ChainBreakToolService toolService;
+    private final EnchantmentService enchantmentService;
+    private final ToolService toolService;
 
-    public PrepareAnvilEventHandler(ConfigService configService, ChainBreakEnchantmentService enchantmentService,
-            ChainBreakToolService toolService) {
+    public PrepareAnvilEventHandler(ConfigService configService, EnchantmentService enchantmentService,
+            ToolService toolService) {
         this.configService = configService;
         this.enchantmentService = enchantmentService;
         this.toolService = toolService;

@@ -11,16 +11,16 @@ import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.tzimom.chainbreak.config.service.ConfigService;
-import net.tzimom.chainbreak.service.ChainBreakEnchantmentService;
-import net.tzimom.chainbreak.service.ChainBreakToolService;
+import net.tzimom.chainbreak.service.EnchantmentService;
+import net.tzimom.chainbreak.service.ToolService;
 
 public class PlayerInteractEventHandler implements Listener {
     private final ConfigService configService;
-    private final ChainBreakToolService toolService;
-    private final ChainBreakEnchantmentService enchantmentService;
+    private final ToolService toolService;
+    private final EnchantmentService enchantmentService;
 
-    public PlayerInteractEventHandler(ConfigService configService, ChainBreakToolService toolService,
-            ChainBreakEnchantmentService enchantmentService) {
+    public PlayerInteractEventHandler(ConfigService configService, ToolService toolService,
+            EnchantmentService enchantmentService) {
         this.configService = configService;
         this.toolService = toolService;
         this.enchantmentService = enchantmentService;

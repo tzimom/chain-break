@@ -1,26 +1,16 @@
 package net.tzimom.chainbreak.eventhandler;
 
-import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 
-import net.tzimom.chainbreak.service.ChainBreakEnchantmentService;
 import net.tzimom.chainbreak.service.ChainBreakService;
-import net.tzimom.chainbreak.service.ChainBreakToolService;
 
 public class BlockBreakEventHandler implements Listener {
     private final ChainBreakService chainBreakService;
-    private final ChainBreakEnchantmentService enchantmentService;
-    private final ChainBreakToolService toolService;
 
-    public BlockBreakEventHandler(
-            ChainBreakService chainBreakService,
-            ChainBreakEnchantmentService enchantmentService,
-            ChainBreakToolService toolService) {
+    public BlockBreakEventHandler(ChainBreakService chainBreakService) {
         this.chainBreakService = chainBreakService;
-        this.enchantmentService = enchantmentService;
-        this.toolService = toolService;
     }
 
     @EventHandler
@@ -30,16 +20,6 @@ public class BlockBreakEventHandler implements Listener {
         var inventory = player.getInventory();
         var tool = inventory.getItemInMainHand();
 
-        if (chainBreakService.isBlockInChainBreak(block))
-            return;
-
-        if (tool == null || tool.getType() == Material.AIR)
-            return;
-
-        if (!toolService.canStartChainBreak(block, tool))
-            return;
-
-        var level = enchantmentService.getEnchantmentLevel(tool);
-        chainBreakService.startChain(block, tool, player, level);
+        chainBreakService.tryStartChainBreak(player, block, tool);
     }
 }
