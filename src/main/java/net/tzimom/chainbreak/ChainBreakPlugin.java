@@ -27,9 +27,9 @@ import net.tzimom.chainbreak.service.impl.ChainBreakEnchantmentServiceImpl;
 public class ChainBreakPlugin extends JavaPlugin {
     private final ConfigService configService = new ConfigServiceImpl(this);
 
-    private final ChainBreakService chainBreakService = new ChainBreakServiceImpl(this, configService);
     private final ChainBreakEnchantmentService enchantmentService = new ChainBreakEnchantmentServiceImpl(this, configService);
     private final ChainBreakToolService toolService = new ChainBreakToolServiceImpl(this, configService, enchantmentService);
+    private final ChainBreakService chainBreakService = new ChainBreakServiceImpl(this, configService, toolService);
     private final RecipeService recipeService = new RecipeServiceImpl(this, configService, enchantmentService);
 
     private final Collection<Listener> eventHandlers = List.of(
