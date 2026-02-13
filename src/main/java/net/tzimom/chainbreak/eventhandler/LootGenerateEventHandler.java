@@ -14,13 +14,13 @@ import org.bukkit.generator.structure.GeneratedStructure;
 import org.bukkit.inventory.ItemStack;
 
 import net.tzimom.chainbreak.config.service.ConfigService;
-import net.tzimom.chainbreak.service.ChainBreakEnchantmentService;
+import net.tzimom.chainbreak.service.EnchantmentService;
 
 public class LootGenerateEventHandler implements Listener {
     private final ConfigService configService;
-    private final ChainBreakEnchantmentService enchantmentService;
+    private final EnchantmentService enchantmentService;
 
-    public LootGenerateEventHandler(ConfigService configService, ChainBreakEnchantmentService enchantmentService) {
+    public LootGenerateEventHandler(ConfigService configService, EnchantmentService enchantmentService) {
         this.configService = configService;
         this.enchantmentService = enchantmentService;
     }

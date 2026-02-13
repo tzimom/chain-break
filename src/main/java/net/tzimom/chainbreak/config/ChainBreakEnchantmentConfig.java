@@ -6,4 +6,7 @@ import org.bukkit.enchantments.Enchantment;
 
 public record ChainBreakEnchantmentConfig(String name, Enchantment dummy,
         List<ChainBreakEnchantmentLevelConfig> levels) {
+    public ChainBreakEnchantmentLevelConfig level(int level) {
+        return levels.get(level - 1);
+    }
 }
