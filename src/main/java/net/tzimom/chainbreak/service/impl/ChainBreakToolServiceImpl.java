@@ -25,7 +25,8 @@ public class ChainBreakToolServiceImpl implements ChainBreakToolService {
         chainBreakEnabledKey = new NamespacedKey(plugin, "enchantment.chainbreak.enabled");
     }
 
-    private boolean isChainBreakEnabled(ItemStack tool) {
+    @Override
+    public boolean isChainBreakEnabled(ItemStack tool) {
         if (tool == null || !tool.hasItemMeta())
             return false;
 
