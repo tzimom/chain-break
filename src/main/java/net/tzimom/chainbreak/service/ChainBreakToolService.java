@@ -5,8 +5,9 @@ import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 
 public interface ChainBreakToolService {
+    boolean isTool(Material itemType);
+    boolean isChainBreakEnabled(ItemStack tool);
     boolean canStartChainBreak(Block block, ItemStack tool);
 
-    boolean isTool(Material itemType);
     boolean toggleChainBreak(ItemStack tool);
 }
