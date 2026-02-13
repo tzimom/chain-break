@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "net.tzimom"
-version = "1.0.1"
+version = "1.0.2"
 
 repositories {
     mavenCentral()
@@ -13,6 +13,7 @@ repositories {
 
 dependencies {
     compileOnly("org.spigotmc:spigot-api:1.21.11-R0.1-SNAPSHOT")
+
     implementation("net.kyori:adventure-api:4.26.1")
     implementation("net.kyori:adventure-text-serializer-legacy:4.26.1")
     implementation("net.kyori:adventure-text-serializer-gson:4.26.1")
